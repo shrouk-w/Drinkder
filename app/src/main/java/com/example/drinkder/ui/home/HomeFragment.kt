@@ -7,9 +7,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import coil.load
+import com.example.drinkder.R
 import com.example.drinkder.databinding.FragmentHomeBinding
 import com.example.drinkder.model.Drink
 
@@ -23,14 +25,22 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
+
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
+
         return binding.root
     }
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        //(requireActivity() as AppCompatActivity).setSupportActionBar(view.findViewById(R.id.customToolbar))
+        //(requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(true) //<-- needs fixing for custom toolbar to work, now crashes
+
 
         viewModel.drinks.observe(viewLifecycleOwner) { drinks ->
             if (drinks.isEmpty()) {
