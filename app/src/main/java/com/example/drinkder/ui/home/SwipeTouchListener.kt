@@ -16,8 +16,8 @@ class SwipeTouchListener(
     }
 
     private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
-        private val SWIPE_THRESHOLD = 100
-        private val SWIPE_VELOCITY_THRESHOLD = 100
+        private val SWIPE_THRESHOLD = 10
+        private val SWIPE_VELOCITY_THRESHOLD = 10
 
         override fun onFling(
             e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float

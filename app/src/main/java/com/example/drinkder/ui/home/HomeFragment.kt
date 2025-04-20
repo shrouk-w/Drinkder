@@ -2,6 +2,7 @@ package com.example.drinkder.ui.home
 
 import SwipeTouchListener
 import SwipeViewModel
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +28,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -46,6 +48,7 @@ class HomeFragment : Fragment() {
             onSwipeRight = {
                 viewModel.drinks.value?.firstOrNull()?.let { viewModel.swipeRight(it) }
             }
+
         ))
     }
 
