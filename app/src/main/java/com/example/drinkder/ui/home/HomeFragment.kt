@@ -50,16 +50,17 @@ class HomeFragment : Fragment() {
             }
         }
 
-        binding.drinkCard.setOnTouchListener(SwipeTouchListener(
-            requireContext(),
-            onSwipeLeft = {
-                viewModel.drinks.value?.firstOrNull()?.let { viewModel.swipeLeft(it) }
-            },
-            onSwipeRight = {
-                viewModel.drinks.value?.firstOrNull()?.let { viewModel.swipeRight(it) }
-            }
+        binding.drinkCard.setOnTouchListener(
+            SwipeTouchListener(requireContext(),
+                onSwipeLeft = {
+                    animateSwipe("left")
+                },
+                onSwipeRight = {
+                    animateSwipe("right")
+                }
+            )
+        )
 
-        ))
     }
 
     private fun showDrink(drink: Drink) {
@@ -72,4 +73,28 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun animateSwipe(direction: String) {
+        val card = binding.drinkCard
+        val distance = if (direction == "left") -card.width.toFloat() else card.width.toFloat()
+
+        card.animate()
+            .translationX(distance)
+            .alpha(0f)
+            .setDuration(300)
+            .withEndAction {
+                // reset card for next drink
+                card.translationX = 0f
+                card.alpha = 1f
+                viewModel.drinks.value?.firstOrNull()?.let {
+                    if (direction == "left") {
+                        viewModel.swipeLeft(it)
+                    } else {
+                        viewModel.swipeRight(it)
+                    }
+                }
+            }
+            .start()
+    }
+
 }
