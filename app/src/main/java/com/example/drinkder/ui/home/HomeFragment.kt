@@ -36,18 +36,18 @@ class HomeFragment : Fragment(), CardStackListener {
 
         viewModel.drinks.observe(viewLifecycleOwner) { drinks ->
             adapter.setDrinks(drinks)
-            if (drinks.size < 3) viewModel.fetchDrink()
+            if (drinks.size < 4) viewModel.fetchDrink()
         }
     }
 
     private fun setupCardStackView() {
         cardStackLayoutManager = CardStackLayoutManager(requireContext(), this).apply {
-            setStackFrom(StackFrom.None)
+            setStackFrom(StackFrom.Top)
             setVisibleCount(3)
             setTranslationInterval(8.0f)
             setScaleInterval(0.95f)
             setSwipeThreshold(0.3f)
-            setMaxDegree(20.0f)
+            setMaxDegree(40.0f)
             setDirections(Direction.HORIZONTAL)
             setCanScrollVertical(false)
         }
@@ -65,7 +65,7 @@ class HomeFragment : Fragment(), CardStackListener {
             viewModel.swipeLeft(currentDrink)
         }
 
-        if ((viewModel.drinks.value?.size ?: 0) < 3) {
+        if ((viewModel.drinks.value?.size ?: 0) < 4) {
             viewModel.fetchDrink()
         }
     }

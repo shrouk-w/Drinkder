@@ -5,7 +5,9 @@
     android:layout_height="match_parent"
     card_view:cardCornerRadius="16dp"
     card_view:cardElevation="8dp"
-    android:layout_margin="8dp"
+    android:layout_marginVertical="24dp"
+    android:layout_marginHorizontal="8dp"
+
     android:clickable="true"
     android:focusable="true"
     android:background="@drawable/gradient">

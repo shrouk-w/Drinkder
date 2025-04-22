@@ -1,10 +1,13 @@
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import coil.Coil
+import coil.request.ImageRequest
 import com.example.drinkder.model.Drink
 import com.example.drinkder.network.RetrofitInstance
 import kotlinx.coroutines.launch
 
-class SwipeViewModel : ViewModel() {
+class SwipeViewModel(application: Application) : AndroidViewModel(application) {
     private val _drinks = MutableLiveData<List<Drink>>(emptyList())
     val drinks: LiveData<List<Drink>> = _drinks
 
@@ -16,14 +19,23 @@ class SwipeViewModel : ViewModel() {
             try {
                 val response = RetrofitInstance.api.getRandomDrink()
                 val newDrink = response.drinks.firstOrNull()
-                newDrink?.let {
-                    _drinks.value = _drinks.value?.plus(it)
+                newDrink?.let { drink ->
+                    // 🔥 Preload obrazka zanim dodasz drinka do listy
+                    val request = ImageRequest.Builder(context = getApplication<Application>().applicationContext)
+                        .data(drink.imageUrl)
+                        .build()
+
+                    Coil.imageLoader(getApplication()).enqueue(request)
+
+                    // Teraz dodajemy drinka do listy
+                    _drinks.value = _drinks.value?.plus(drink)
                 }
             } catch (e: Exception) {
                 Log.e("SwipeViewModel", "Error fetching drink: ${e.message}", e)
             }
         }
     }
+
 
     fun swipeRight(drink: Drink) {
         if (_favorites.value?.any { it.id == drink.id } == false) {
