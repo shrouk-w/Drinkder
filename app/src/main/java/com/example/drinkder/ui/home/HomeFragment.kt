@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.example.drinkder.databinding.FragmentHomeBinding
 import com.yuyakaido.android.cardstackview.*
 
@@ -16,7 +16,7 @@ class HomeFragment : Fragment(), CardStackListener {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: SwipeViewModel by viewModels()
+    private val viewModel: SwipeViewModel by activityViewModels()
 
     private lateinit var cardStackLayoutManager: CardStackLayoutManager
     private lateinit var adapter: DrinkCardAdapter
