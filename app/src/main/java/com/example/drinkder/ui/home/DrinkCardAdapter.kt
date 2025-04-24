@@ -32,7 +32,26 @@ class DrinkCardAdapter(
 
         fun bind(drink: Drink) {
             binding.drinkName.text = drink.name
-            binding.drinkDescription.text = drink.description
+            val ingredients = listOf(
+                drink.ingredient1,
+                drink.ingredient2,
+                drink.ingredient3,
+                drink.ingredient4,
+                drink.ingredient5,
+                drink.ingredient6,
+                drink.ingredient7,
+                drink.ingredient8,
+                drink.ingredient9,
+                drink.ingredient10,
+                drink.ingredient11,
+                drink.ingredient12,
+                drink.ingredient13,
+                drink.ingredient14,
+                drink.ingredient15
+            ).filterNot { it.isNullOrBlank() }
+                .mapIndexed{i, ing ->  "${i + 1}. $ing"}
+
+            binding.drinkDescription.text = ingredients.joinToString(separator = "\n")
             binding.drinkImage.load(drink.imageUrl)
         }
     }
