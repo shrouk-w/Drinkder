@@ -45,6 +45,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:textColor="#EEEEEE"
+                android:maxLines="8"
                 android:textSize="16sp" />
         </LinearLayout>
     </FrameLayout>
