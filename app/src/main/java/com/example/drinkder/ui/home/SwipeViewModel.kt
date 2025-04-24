@@ -7,11 +7,11 @@ import com.example.drinkder.model.Drink
 import com.example.drinkder.network.RetrofitInstance
 import kotlinx.coroutines.launch
 
-class SwipeViewModel(application: Application) : AndroidViewModel(application) {
-    private val _drinks = MutableLiveData<List<Drink>>(emptyList())
+class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
+    private val _drinks = savedStateHandle.getLiveData<List<Drink>>("drinks", emptyList())
     val drinks: LiveData<List<Drink>> = _drinks
 
-    private val _favorites = MutableLiveData<List<Drink>>(emptyList())
+    private val _favorites = savedStateHandle.getLiveData<List<Drink>>("favorites", emptyList())
     val favorites: LiveData<List<Drink>> = _favorites
 
     fun fetchDrink() {
@@ -20,14 +20,13 @@ class SwipeViewModel(application: Application) : AndroidViewModel(application) {
                 val response = RetrofitInstance.api.getRandomDrink()
                 val newDrink = response.drinks.firstOrNull()
                 newDrink?.let { drink ->
-                    // 🔥 Preload obrazka zanim dodasz drinka do listy
+
                     val request = ImageRequest.Builder(context = getApplication<Application>().applicationContext)
                         .data(drink.imageUrl)
                         .build()
 
                     Coil.imageLoader(getApplication()).enqueue(request)
 
-                    // Teraz dodajemy drinka do listy
                     _drinks.value = _drinks.value?.plus(drink)
                 }
             } catch (e: Exception) {

@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        // Obsługa kliknięć w Twoim customowym toolbarze
         val homeIcon = findViewById<ImageView>(R.id.nav_home)
         val dashboardIcon = findViewById<ImageView>(R.id.nav_dashboard)
 

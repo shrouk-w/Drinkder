@@ -27,6 +27,7 @@ class HomeFragment : Fragment(), CardStackListener {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         (requireActivity() as AppCompatActivity).supportActionBar?.hide()
+
         return binding.root
     }
 
@@ -80,4 +81,8 @@ class HomeFragment : Fragment(), CardStackListener {
         super.onDestroyView()
         _binding = null
     }
+
+
+
+
 }
