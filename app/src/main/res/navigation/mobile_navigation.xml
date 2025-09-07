@@ -17,4 +17,10 @@
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="com.example.drinkder.ui.searchpage.SearchPageFragment"
+        android:label="@string/title_searchpage"
+        tools:layout="@layout/search_layout" />
+
 </navigation>

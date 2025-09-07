@@ -50,4 +50,9 @@ class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandl
     private fun removeDrink(drink: Drink) {
         _drinks.value = _drinks.value?.filterNot { it.id == drink.id }
     }
+
+    fun removeFavorite(drink: Drink) {
+        _favorites.value = _favorites.value?.filterNot { it.id == drink.id }
+    }
+
 }

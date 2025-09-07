@@ -22,12 +22,13 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
         val appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.navigation_home, R.id.navigation_dashboard)
+            setOf(R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_search)
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         val homeIcon = findViewById<ImageView>(R.id.nav_home)
         val dashboardIcon = findViewById<ImageView>(R.id.nav_dashboard)
+        val searchIcon = findViewById<ImageView>(R.id.nav_search)
 
         updateNavigationBar(R.id.nav_home)
 
@@ -40,17 +41,23 @@ class MainActivity : AppCompatActivity() {
             navController.navigate(R.id.navigation_dashboard)
             updateNavigationBar(R.id.nav_dashboard)
         }
+
+        searchIcon.setOnClickListener {
+            navController.navigate(R.id.navigation_search)
+            updateNavigationBar(R.id.nav_search)
+        }
     }
 
     private fun updateNavigationBar(activeId: Int) {
         val allIcons = listOf(
             findViewById<ImageView>(R.id.nav_home),
             findViewById<ImageView>(R.id.nav_dashboard),
+            findViewById<ImageView>(R.id.nav_search)
         )
 
         allIcons.forEach { icon ->
             val isActive = icon.id == activeId
-            val scale = if (isActive) 1.3f else 1.0f
+            val scale = if (isActive) 1.4f else 1.1f
             val color = if (isActive)
                 ContextCompat.getColor(this, R.color.nav_active)
             else

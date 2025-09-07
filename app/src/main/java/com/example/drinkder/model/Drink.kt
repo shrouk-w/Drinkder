@@ -1,6 +1,7 @@
 package com.example.drinkder.model
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class Drink(
     @SerializedName("idDrink") val id: String,
@@ -22,5 +23,19 @@ data class Drink(
     @SerializedName ("strIngredient13") val ingredient13: String?,
     @SerializedName ("strIngredient14") val ingredient14: String?,
     @SerializedName ("strIngredient15") val ingredient15: String?,
-
-)
+    @SerializedName("strMeasure1") val measure1: String?,
+    @SerializedName("strMeasure2") val measure2: String?,
+    @SerializedName("strMeasure3") val measure3: String?,
+    @SerializedName("strMeasure4") val measure4: String?,
+    @SerializedName("strMeasure5") val measure5: String?,
+    @SerializedName("strMeasure6") val measure6: String?,
+    @SerializedName("strMeasure7") val measure7: String?,
+    @SerializedName("strMeasure8") val measure8: String?,
+    @SerializedName("strMeasure9") val measure9: String?,
+    @SerializedName("strMeasure10") val measure10: String?,
+    @SerializedName("strMeasure11") val measure11: String?,
+    @SerializedName("strMeasure12") val measure12: String?,
+    @SerializedName("strMeasure13") val measure13: String?,
+    @SerializedName("strMeasure14") val measure14: String?,
+    @SerializedName("strMeasure15") val measure15: String?,
+    ) : Serializable

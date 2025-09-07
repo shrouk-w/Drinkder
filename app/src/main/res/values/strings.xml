@@ -2,4 +2,7 @@
     <string name="app_name">Drinkder</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
+    <string name="title_searchpage">Search</string>
+    <string name="delete">Delete</string>
+    <string name="close">Close</string>
 </resources>
