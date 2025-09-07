@@ -3,9 +3,14 @@ import android.util.Log
 import androidx.lifecycle.*
 import coil.Coil
 import coil.request.ImageRequest
+import com.example.drinkder.data.FavoritesStore
 import com.example.drinkder.model.Drink
 import com.example.drinkder.network.RetrofitInstance
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
     private val _drinks = savedStateHandle.getLiveData<List<Drink>>("drinks", emptyList())
@@ -13,6 +18,9 @@ class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandl
 
     private val _favorites = savedStateHandle.getLiveData<List<Drink>>("favorites", emptyList())
     val favorites: LiveData<List<Drink>> = _favorites
+
+    private val favoritesStore = FavoritesStore(getApplication<Application>())
+    private val favoriteIds = mutableSetOf<String>()
 
     fun fetchDrink() {
         viewModelScope.launch {
@@ -35,10 +43,38 @@ class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandl
         }
     }
 
+    init {
+        viewModelScope.launch {
+
+            favoriteIds.clear()
+            favoriteIds.addAll(favoritesStore.getIdsOnce())
+
+            _favorites.value = loadFavoritesByIds(favoriteIds.toList())
+        }
+    }
+
+    private suspend fun loadFavoritesByIds(ids: List<String>): List<Drink> {
+        return withContext(Dispatchers.IO) {
+            ids.map { id ->
+                async {
+                    try {
+                        RetrofitInstance.api.getDrinkById(id).drinks.firstOrNull()
+                    } catch (_: Exception) {
+                        null
+                    }
+                }
+            }.mapNotNull { it.await() }
+        }
+    }
+
+
 
     fun swipeRight(drink: Drink) {
         if (_favorites.value?.any { it.id == drink.id } == false) {
+
             _favorites.value = _favorites.value?.plus(drink)
+
+            viewModelScope.launch { favoritesStore.add(drink.id) }
         }
         removeDrink(drink)
     }
@@ -48,11 +84,13 @@ class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandl
     }
 
     private fun removeDrink(drink: Drink) {
+
         _drinks.value = _drinks.value?.filterNot { it.id == drink.id }
     }
 
     fun removeFavorite(drink: Drink) {
         _favorites.value = _favorites.value?.filterNot { it.id == drink.id }
+        viewModelScope.launch { favoritesStore.remove(drink.id) }
     }
 
 }
