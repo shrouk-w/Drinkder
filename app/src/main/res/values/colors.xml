@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="nav_active">#FFB623</color>
-    <color name="nav_inactive">#000000</color>
+    <color name="rum_900">#23110D</color>
+    <color name="rum_800">#3A1D16</color>
+    <color name="rum_700">#5A281B</color>
+    <color name="apricot_500">#F08A5D</color>
+    <color name="apricot_300">#F7BC8A</color>
+    <color name="cream_100">#FFF7EC</color>
+    <color name="blush_100">#F8E2D8</color>
+    <color name="mint_300">#AEE3D0</color>
+    <color name="fog_200">#D8C7BF</color>
+    <color name="filter_chip_bg">#14FFFFFF</color>
+    <color name="filter_chip_stroke">#24FFFFFF</color>
+    <color name="search_surface">#F4EEE6</color>
+    <color name="search_surface_strong">#FFF8F2</color>
+    <color name="search_ink">#1C120F</color>
+    <color name="search_muted">#6F625B</color>
+    <color name="search_line">#D4C6BB</color>
+    <color name="surface_glass">#CCFFF8F0</color>
+    <color name="surface_soft">#33FFFFFF</color>
+    <color name="nav_active">#FFF7EC</color>
+    <color name="nav_inactive">#80FFF7EC</color>
+    <color name="danger">#FF8B5E5E</color>
 </resources>

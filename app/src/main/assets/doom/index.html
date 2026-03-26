@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>DrinkOOM</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #050505;
+      font-family: Arial, sans-serif;
+      touch-action: none;
+    }
+    #game {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background: #050505;
+    }
+    .hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      color: #f3e6d9;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .title {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      text-shadow: 0 2px 0 #000, 0 0 14px rgba(126, 18, 18, 0.28);
+      white-space: nowrap;
+    }
+    .title .doom {
+      display: inline-block;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      background: linear-gradient(180deg, #ffdc9b 0%, #d84f26 36%, #8d1616 70%, #4f0a0a 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+    .title .doom::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      color: transparent;
+      text-shadow: 0 0 10px rgba(169, 28, 28, 0.38);
+      z-index: -1;
+    }
+    .title .rink {
+      display: inline-block;
+      font-size: 15px;
+      letter-spacing: 0.22em;
+      color: #f3e6d9;
+      margin-left: 2px;
+      vertical-align: top;
+      transform: translateY(12px);
+    }
+    .status,
+    .killbox {
+      position: absolute;
+      bottom: 154px;
+      padding: 6px 8px;
+      background: rgba(0, 0, 0, 0.34);
+      border: 1px solid rgba(243, 230, 217, 0.18);
+    }
+    .status { left: 14px; }
+    .killbox { right: 14px; }
+    .crosshair {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      margin-left: -9px;
+      margin-top: -9px;
+      opacity: 0.85;
+    }
+    .crosshair::before,
+    .crosshair::after {
+      content: "";
+      position: absolute;
+      background: rgba(255, 255, 255, 0.88);
+    }
+    .crosshair::before {
+      left: 8px;
+      top: 0;
+      width: 2px;
+      height: 18px;
+    }
+    .crosshair::after {
+      left: 0;
+      top: 8px;
+      width: 18px;
+      height: 2px;
+    }
+    .lose {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(22, 0, 0, 0.72);
+      color: #f6dfd0;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease;
+    }
+    .lose.show {
+      opacity: 1;
+    }
+    .loseCard {
+      padding: 18px 22px;
+      border: 1px solid rgba(246, 223, 208, 0.25);
+      background: rgba(10, 4, 4, 0.82);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.34);
+    }
+    .loseTitle {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      margin-bottom: 8px;
+      color: #ffb28e;
+    }
+    .loseMeta {
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #f6dfd0;
+    }
+    .controls {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 14px;
+      box-sizing: border-box;
+      gap: 12px;
+    }
+    .cluster {
+      display: grid;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    .move {
+      grid-template-columns: repeat(3, 64px);
+      grid-template-areas:
+        ". up ."
+        "left down right";
+    }
+    .turnFire {
+      grid-template-columns: repeat(2, 74px);
+      grid-template-areas:
+        "turnLeft turnRight"
+        "fire fire";
+    }
+    #forward { grid-area: up; }
+    #left { grid-area: left; }
+    #backward { grid-area: down; }
+    #right { grid-area: right; }
+    #turnLeft { grid-area: turnLeft; }
+    #turnRight { grid-area: turnRight; }
+    #fire {
+      grid-area: fire;
+      width: 100%;
+      background: rgba(212, 72, 28, 0.82);
+      color: #140c08;
+    }
+    button {
+      width: 64px;
+      height: 64px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      background: rgba(10, 10, 10, 0.46);
+      color: #f3e6d9;
+      font-size: 16px;
+      font-weight: 700;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      user-select: none;
+    }
+    button:active,
+    button.active {
+      background: rgba(244, 190, 113, 0.95);
+      color: #170f0b;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <div class="hud">
+    <div class="title"><span class="doom" data-text="D">D</span><span class="rink">rink</span><span class="doom" data-text="OOM">OOM</span></div>
+    <div class="status" id="statusPanel">HP 100 | Wave 1 | Kills 0</div>
+    <div class="killbox" id="killCounter">Alive 0</div>
+    <div class="crosshair"></div>
+  </div>
+  <div class="controls">
+    <div class="cluster move">
+      <button id="forward">FWD</button>
+      <button id="left">LEFT</button>
+      <button id="backward">BACK</button>
+      <button id="right">RIGHT</button>
+    </div>
+    <div class="cluster turnFire">
+      <button id="turnLeft">TURN</button>
+      <button id="turnRight">TURN</button>
+      <button id="fire">FIRE</button>
+    </div>
+  </div>
+  <div class="lose" id="loseOverlay">
+    <div class="loseCard">
+      <div class="loseTitle">YOU GOT MIXED</div>
+      <div class="loseMeta" id="loseMeta">Wave 1 | Kills 0</div>
+    </div>
+  </div>
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const killCounter = document.getElementById("killCounter");
+    const statusPanel = document.getElementById("statusPanel");
+    const loseOverlay = document.getElementById("loseOverlay");
+    const loseMeta = document.getElementById("loseMeta");
+
+    const map = [
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+      [1,0,0,1,0,0,0,0,0,1,0,0,0,1],
+      [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
+      [1,0,1,0,0,0,0,0,0,0,0,1,0,1],
+      [1,0,0,0,1,0,0,0,0,1,0,0,0,1],
+      [1,0,0,0,0,0,1,1,0,0,0,0,0,1],
+      [1,0,0,0,0,0,1,1,0,0,0,0,0,1],
+      [1,0,0,0,1,0,0,0,0,1,0,0,0,1],
+      [1,0,1,0,0,0,0,0,0,0,0,1,0,1],
+      [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
+      [1,0,0,1,0,0,0,0,0,1,0,0,0,1],
+      [1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ];
+
+    const spawnPoints = [
+      { x: 11.5, y: 2.5 }, { x: 3.5, y: 2.5 }, { x: 9.5, y: 4.5 }, { x: 2.5, y: 6.5 },
+      { x: 11.5, y: 6.5 }, { x: 4.5, y: 9.5 }, { x: 9.5, y: 9.5 }, { x: 6.5, y: 11.5 },
+      { x: 11.5, y: 11.5 }, { x: 2.5, y: 11.5 }
+    ];
+
+    const player = { x: 2.2, y: 2.2, angle: 0.1, fov: Math.PI / 3, hp: 100 };
+    const state = {
+      savedDrinks: [
+        { name: "Negroni", imageUrl: "https://www.thecocktaildb.com/images/media/drink/qgdu971561574065.jpg" },
+        { name: "Margarita", imageUrl: "https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg" },
+        { name: "Old Fashioned", imageUrl: "https://www.thecocktaildb.com/images/media/drink/vrwquq1478252802.jpg" },
+        { name: "Mojito", imageUrl: "https://www.thecocktaildb.com/images/media/drink/metwgh1606770327.jpg" }
+      ],
+      enemies: [],
+      bloodStains: [],
+      gibs: [],
+      bullets: [],
+      enemyBullets: [],
+      kills: 0,
+      wave: 1,
+      muzzle: 0,
+      depthBuffer: [],
+      gameOver: false,
+      restartTimer: 0
+    };
+    const keys = { forward: false, backward: false, left: false, right: false, turnLeft: false, turnRight: false };
+    const imageCache = new Map();
+
+    const archetypes = {
+      runner: { speed: 1.15, hp: 1, shoot: null, color: "#e35b34" },
+      imp: { speed: 0.72, hp: 2, shoot: "single", cooldown: 1.4, color: "#d8a04d" },
+      burst: { speed: 0.68, hp: 2, shoot: "burst", cooldown: 1.9, color: "#8fd0b6" },
+      gunner: { speed: 0.64, hp: 3, shoot: "rapid", cooldown: 1.1, color: "#c95a7b" },
+      shotgunner: { speed: 0.58, hp: 4, shoot: "shotgun", cooldown: 1.7, color: "#e47d52" },
+      bruiser: { speed: 0.47, hp: 7, shoot: "heavy", cooldown: 1.9, color: "#7f5cff" }
+    };
+    const enemyBadges = {
+      runner: "type-runner.png",
+      imp: "type-imp.png",
+      burst: "type-burst.png",
+      gunner: "type-gunner.png",
+      shotgunner: "type-shotgunner.png",
+      bruiser: "type-bruiser.png"
+    };
+
+    const palette = {
+      skyTop: "#170404",
+      skyBottom: "#742016",
+      floorTop: "#332018",
+      floorBottom: "#050505",
+      walls: ["#431310", "#651d14", "#8e2f1d", "#b44625"],
+      muzzle: "#ffd28a",
+      bullet: "#ffd28a",
+      enemyBullet: "#ff6a52"
+    };
+    const weaponSpriteUrl = "freedoom-shotgun.png";
+
+    function ensureImage(url) {
+      if (!url || imageCache.has(url)) return imageCache.get(url);
+      const image = new Image();
+      if (/^https?:/i.test(url)) image.crossOrigin = "anonymous";
+      image.src = url;
+      imageCache.set(url, image);
+      return image;
+    }
+
+    function resize() {
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(window.innerWidth * ratio);
+      canvas.height = Math.floor(window.innerHeight * ratio);
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      state.depthBuffer = new Array(window.innerWidth).fill(20);
+    }
+
+    function isWall(x, y) {
+      const cellX = Math.floor(x);
+      const cellY = Math.floor(y);
+      return map[cellY]?.[cellX] >= 1 || false;
+    }
+
+    function castRay(rayAngle) {
+      const sin = Math.sin(rayAngle);
+      const cos = Math.cos(rayAngle);
+      let depth = 0;
+      while (depth < 20) {
+        const x = player.x + cos * depth;
+        const y = player.y + sin * depth;
+        if (isWall(x, y)) return { depth, hitX: x, hitY: y };
+        depth += 0.02;
+      }
+      return { depth: 20, hitX: player.x, hitY: player.y };
+    }
+
+    function hasLineOfSight(x0, y0, x1, y1) {
+      const dx = x1 - x0;
+      const dy = y1 - y0;
+      const distance = Math.hypot(dx, dy);
+      const steps = Math.ceil(distance / 0.12);
+      for (let i = 1; i < steps; i++) {
+        const t = i / steps;
+        if (isWall(x0 + dx * t, y0 + dy * t)) return false;
+      }
+      return true;
+    }
+
+    function drawBackground(w, h) {
+      const sky = ctx.createLinearGradient(0, 0, 0, h / 2);
+      sky.addColorStop(0, palette.skyTop);
+      sky.addColorStop(1, palette.skyBottom);
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, w, h / 2);
+
+      const floor = ctx.createLinearGradient(0, h / 2, 0, h);
+      floor.addColorStop(0, palette.floorTop);
+      floor.addColorStop(1, palette.floorBottom);
+      ctx.fillStyle = floor;
+      ctx.fillRect(0, h / 2, w, h / 2);
+
+      ctx.strokeStyle = "rgba(255,120,80,0.07)";
+      ctx.lineWidth = 1;
+      for (let y = h / 2; y < h; y += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+    }
+
+    function renderWalls(w, h) {
+      for (let column = 0; column < w; column += 1) {
+        const rayAngle = player.angle - player.fov / 2 + (column / w) * player.fov;
+        const ray = castRay(rayAngle);
+        const correctedDepth = ray.depth * Math.cos(rayAngle - player.angle);
+        state.depthBuffer[column] = correctedDepth;
+        const wallHeight = Math.min(h, (h * 1.02) / Math.max(correctedDepth, 0.001));
+        const shade = Math.max(0.16, 1 - correctedDepth / 9.5);
+        const colorIndex = (Math.floor(ray.hitX * 3) + Math.floor(ray.hitY * 7)) % palette.walls.length;
+        const color = hexToRgb(palette.walls[colorIndex]);
+        ctx.fillStyle = `rgb(${color.r * shade}, ${color.g * shade}, ${color.b * shade})`;
+        ctx.fillRect(column, (h - wallHeight) / 2, 1, wallHeight);
+        if (column % 2 === 0) {
+          ctx.fillStyle = `rgba(0,0,0,${Math.min(0.38, correctedDepth * 0.03)})`;
+          ctx.fillRect(column, (h - wallHeight) / 2, 1, wallHeight);
+        }
+      }
+    }
+
+    function drawEnemyTile(x, y, size, enemy) {
+      const labelHeight = Math.max(12, Math.min(20, size * 0.14));
+      const imagePadding = Math.max(2, size * 0.035);
+      const imageHeight = size - labelHeight - imagePadding * 2;
+
+      ctx.fillStyle = "rgba(0,0,0,0.34)";
+      ctx.beginPath();
+      ctx.ellipse(x + size / 2, y + size * 0.96, size * 0.34, size * 0.12, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = enemy.hitFlash > 0 ? "#fff4d1" : "#f4eee6";
+      ctx.fillRect(x, y, size, size);
+      ctx.strokeStyle = enemy.hitFlash > 0 ? "#ffb875" : enemy.accent;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x, y, size, size);
+
+      const image = ensureImage(enemy.imageUrl);
+      if (image && image.complete) {
+        ctx.drawImage(image, x + imagePadding, y + imagePadding, size - imagePadding * 2, imageHeight);
+      } else {
+        ctx.fillStyle = enemy.accent;
+        ctx.fillRect(x + imagePadding, y + imagePadding, size - imagePadding * 2, imageHeight);
+      }
+
+      drawEnemyOverlay(x, y, size, imageHeight, enemy);
+
+      ctx.fillStyle = "#120d0b";
+      ctx.fillRect(x, y + size - labelHeight, size, labelHeight);
+      ctx.fillStyle = "#f4eee6";
+      ctx.font = `${Math.max(7, Math.min(10, size * 0.08))}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(enemy.name.slice(0, 16), x + size / 2, y + size - labelHeight / 2);
+    }
+
+    function drawOverlayImage(image, x, y, width, height, alpha = 1) {
+      if (!image || !image.complete) return;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(image, x, y, width, height);
+      ctx.restore();
+    }
+
+    function drawEnemyOverlay(x, y, size, imageHeight, enemy) {
+      const accentStroke = enemy.hitFlash > 0 ? "#fff4d1" : enemy.accent;
+      const gearImage = ensureImage(enemyBadges[enemy.type]);
+      const gunImage = ensureImage(weaponSpriteUrl);
+
+      if (enemy.type === "runner") {
+        const bootSize = Math.max(10, size * 0.2);
+        drawOverlayImage(gearImage, x + size * 0.16, y + imageHeight - bootSize * 0.55, bootSize, bootSize);
+        drawOverlayImage(gearImage, x + size * 0.62, y + imageHeight - bootSize * 0.55, bootSize, bootSize);
+      } else if (enemy.type === "imp") {
+        const ammoSize = Math.max(12, size * 0.19);
+        drawOverlayImage(gearImage, x + size * 0.11, y + size * 0.12, ammoSize, ammoSize);
+      } else if (enemy.type === "burst") {
+        const orb = Math.max(10, size * 0.16);
+        drawOverlayImage(gearImage, x + size * 0.22, y + size * 0.1, orb, orb);
+        drawOverlayImage(gearImage, x + size * 0.62, y + size * 0.1, orb, orb);
+      } else if (enemy.type === "gunner") {
+        const gunWidth = Math.max(20, size * 0.48);
+        const gunHeight = Math.max(15, size * 0.24);
+        drawOverlayImage(gunImage, x + size * 0.28, y + imageHeight - gunHeight - 6, gunWidth, gunHeight);
+        const armor = Math.max(10, size * 0.16);
+        drawOverlayImage(gearImage, x + size * 0.08, y + size * 0.1, armor, armor, 0.82);
+      } else if (enemy.type === "shotgunner") {
+        const gunWidth = Math.max(22, size * 0.54);
+        const gunHeight = Math.max(17, size * 0.26);
+        drawOverlayImage(gunImage, x + size * 0.24, y + imageHeight - gunHeight - 7, gunWidth, gunHeight);
+        const marker = Math.max(10, size * 0.16);
+        drawOverlayImage(gearImage, x + size * 0.72, y + size * 0.12, marker, marker);
+      } else if (enemy.type === "bruiser") {
+        const armorWidth = Math.max(20, size * 0.48);
+        const armorHeight = Math.max(20, size * 0.48);
+        drawOverlayImage(gearImage, x + (size - armorWidth) / 2, y + imageHeight * 0.18, armorWidth, armorHeight, 0.42);
+      }
+
+      if (enemy.maxHp >= 5) {
+        ctx.strokeStyle = accentStroke;
+        ctx.lineWidth = Math.max(2, size * 0.03);
+        ctx.strokeRect(x + 2, y + 2, size - 4, size - 4);
+      }
+    }
+
+    function drawBloodStains(w, h) {
+      state.bloodStains
+        .map(stain => {
+          const dx = stain.x - player.x;
+          const dy = stain.y - player.y;
+          const distance = Math.hypot(dx, dy);
+          const angleToStain = Math.atan2(dy, dx) - player.angle;
+          const wrapped = Math.atan2(Math.sin(angleToStain), Math.cos(angleToStain));
+          return { stain, distance, angle: wrapped };
+        })
+        .filter(item => Math.abs(item.angle) < player.fov * 0.82)
+        .sort((a, b) => b.distance - a.distance)
+        .forEach(({ stain, distance, angle }) => {
+          const screenX = w / 2 + (angle / (player.fov / 2)) * (w / 2);
+          const column = Math.max(0, Math.min(w - 1, Math.floor(screenX)));
+          if (distance > state.depthBuffer[column] + 0.04) return;
+          const size = Math.max(4, (stain.size * 130) / Math.max(distance, 0.2));
+          const screenY = h / 2 + 62 - size / 2;
+          ctx.fillStyle = stain.color;
+          ctx.globalAlpha = 0.72;
+          ctx.beginPath();
+          ctx.ellipse(screenX, screenY, size, size * 0.45, stain.rotation, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        });
+    }
+
+    function drawEnemies(w, h) {
+      const projected = state.enemies
+        .map(enemy => {
+          const dx = enemy.x - player.x;
+          const dy = enemy.y - player.y;
+          const distance = Math.hypot(dx, dy);
+          const angleToEnemy = Math.atan2(dy, dx) - player.angle;
+          const wrapped = Math.atan2(Math.sin(angleToEnemy), Math.cos(angleToEnemy));
+          return { enemy, distance, angle: wrapped };
+        })
+        .filter(item => Math.abs(item.angle) < player.fov * 0.72)
+        .sort((a, b) => b.distance - a.distance);
+
+      projected.forEach(({ enemy, distance, angle }) => {
+        const size = Math.max(34, 250 / distance);
+        const screenX = w / 2 + (angle / (player.fov / 2)) * (w / 2);
+        const x = screenX - size / 2;
+        const y = h / 2 + 36 - size;
+        const startColumn = Math.max(0, Math.floor(x));
+        const endColumn = Math.min(w - 1, Math.ceil(x + size));
+        let visible = false;
+        for (let column = startColumn; column <= endColumn; column += Math.max(1, Math.floor(size / 8))) {
+          if (distance <= state.depthBuffer[column] + 0.12) {
+            visible = true;
+            break;
+          }
+        }
+        if (!visible) return;
+        drawEnemyTile(x, y, size, enemy);
+      });
+    }
+
+    function drawGibs(w, h) {
+      state.gibs
+        .map(gib => {
+          const dx = gib.x - player.x;
+          const dy = gib.y - player.y;
+          const distance = Math.hypot(dx, dy);
+          const angleToGib = Math.atan2(dy, dx) - player.angle;
+          const wrapped = Math.atan2(Math.sin(angleToGib), Math.cos(angleToGib));
+          return { gib, distance, angle: wrapped };
+        })
+        .filter(item => Math.abs(item.angle) < player.fov * 0.82)
+        .sort((a, b) => b.distance - a.distance)
+        .forEach(({ gib, distance, angle }) => {
+          const screenX = w / 2 + (angle / (player.fov / 2)) * (w / 2);
+          const column = Math.max(0, Math.min(w - 1, Math.floor(screenX)));
+          if (distance > state.depthBuffer[column] + 0.04) return;
+          const size = Math.max(2, (gib.size * 80) / Math.max(distance, 0.2));
+          const screenY = h / 2 + 52 + gib.height * 26 - size / 2;
+          ctx.fillStyle = gib.color;
+          ctx.globalAlpha = Math.min(1, gib.life * 1.2);
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        });
+    }
+
+    function drawBulletSet(bullets, color, w, h) {
+      bullets.forEach(bullet => {
+        const dx = bullet.x - player.x;
+        const dy = bullet.y - player.y;
+        const distance = Math.hypot(dx, dy);
+        const angleToBullet = Math.atan2(dy, dx) - player.angle;
+        const wrapped = Math.atan2(Math.sin(angleToBullet), Math.cos(angleToBullet));
+        if (Math.abs(wrapped) > player.fov * 0.78) return;
+
+        const screenX = w / 2 + (wrapped / (player.fov / 2)) * (w / 2);
+        const column = Math.max(0, Math.min(w - 1, Math.floor(screenX)));
+        if (distance > state.depthBuffer[column] + 0.04) return;
+
+        const size = Math.max(3, 68 / distance);
+        const screenY = h / 2 + bullet.heightOffset - size / 2;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawWeapon(w, h) {
+      const bob = Math.sin(performance.now() / 140) * 2.5;
+      const image = ensureImage(weaponSpriteUrl);
+      const width = 180;
+      const height = 168;
+      const x = w / 2 - width / 2;
+      const y = h - height + 48 + bob;
+
+      if (image && image.complete) {
+        ctx.drawImage(image, x, y, width, height);
+      } else {
+        ctx.fillStyle = "#171111";
+        ctx.fillRect(x + 72, y + 74, 126, 70);
+        ctx.fillStyle = "#6f5b4d";
+        ctx.fillRect(x + 84, y + 118, 62, 54);
+        ctx.fillStyle = "#645f63";
+        ctx.fillRect(x + 54, y + 58, 160, 28);
+      }
+
+      if (state.muzzle > 0) {
+        ctx.fillStyle = palette.muzzle;
+        ctx.beginPath();
+        ctx.moveTo(x + 122, y + 62);
+        ctx.lineTo(x + 173, y + 24);
+        ctx.lineTo(x + 168, y + 92);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function render() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      drawBackground(w, h);
+      renderWalls(w, h);
+      drawBloodStains(w, h);
+      drawGibs(w, h);
+      drawEnemies(w, h);
+      drawBulletSet(state.bullets, palette.bullet, w, h);
+      drawBulletSet(state.enemyBullets, palette.enemyBullet, w, h);
+      drawWeapon(w, h);
+      updateHud();
+    }
+
+    function toCell(x, y) {
+      return { x: Math.floor(x), y: Math.floor(y) };
+    }
+
+    function nextPathCell(startX, startY, targetX, targetY) {
+      const start = toCell(startX, startY);
+      const target = toCell(targetX, targetY);
+      if (start.x === target.x && start.y === target.y) return null;
+
+      const queue = [start];
+      const visited = new Set([`${start.x},${start.y}`]);
+      const parent = new Map();
+      const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+
+      while (queue.length) {
+        const cell = queue.shift();
+        for (const [dx, dy] of dirs) {
+          const nx = cell.x + dx;
+          const ny = cell.y + dy;
+          const key = `${nx},${ny}`;
+          if (visited.has(key) || isWall(nx + 0.5, ny + 0.5)) continue;
+          visited.add(key);
+          parent.set(key, cell);
+          if (nx === target.x && ny === target.y) {
+            let step = { x: nx, y: ny };
+            while (true) {
+              const p = parent.get(`${step.x},${step.y}`);
+              if (!p || (p.x === start.x && p.y === start.y)) break;
+              step = p;
+            }
+            return { x: step.x + 0.5, y: step.y + 0.5 };
+          }
+          queue.push({ x: nx, y: ny });
+        }
+      }
+      return null;
+    }
+
+    function randomSpawnPoint(enemy) {
+      const candidates = [...spawnPoints]
+        .sort(() => Math.random() - 0.5)
+        .filter(point => {
+          if (Math.hypot(point.x - player.x, point.y - player.y) < 3.8) return false;
+          if (hasLineOfSight(point.x, point.y, player.x, player.y)) return false;
+          const angleToPoint = Math.atan2(point.y - player.y, point.x - player.x) - player.angle;
+          const wrapped = Math.atan2(Math.sin(angleToPoint), Math.cos(angleToPoint));
+          if (Math.abs(wrapped) < player.fov * 0.7) return false;
+          return !state.enemies.some(other => other !== enemy && Math.hypot(point.x - other.x, point.y - other.y) < 1.1);
+        });
+      return candidates[0] || spawnPoints[Math.floor(Math.random() * spawnPoints.length)];
+    }
+
+    function nudgeEnemy(enemy) {
+      const options = [
+        { x: enemy.x + 0.55, y: enemy.y },
+        { x: enemy.x - 0.55, y: enemy.y },
+        { x: enemy.x, y: enemy.y + 0.55 },
+        { x: enemy.x, y: enemy.y - 0.55 },
+        { x: enemy.x + 0.45, y: enemy.y + 0.45 },
+        { x: enemy.x - 0.45, y: enemy.y - 0.45 },
+        { x: enemy.x + 0.45, y: enemy.y - 0.45 },
+        { x: enemy.x - 0.45, y: enemy.y + 0.45 }
+      ];
+      const valid = options.find(option => !isWall(option.x, option.y));
+      if (!valid) return false;
+      enemy.x = valid.x;
+      enemy.y = valid.y;
+      return true;
+    }
+
+    function addBloodStain(x, y, size, color) {
+      state.bloodStains.push({
+        x,
+        y,
+        size,
+        color,
+        rotation: Math.random() * Math.PI
+      });
+      if (state.bloodStains.length > 90) state.bloodStains.shift();
+    }
+
+    function spawnBloodBurst(x, y, count, spread) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 0.28 + Math.random() * spread;
+        state.gibs.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          height: Math.random() * 0.45,
+          vz: 0.8 + Math.random() * 0.8,
+          life: 0.35 + Math.random() * 0.35,
+          size: 0.05 + Math.random() * 0.08,
+          color: i % 4 === 0 ? "#ffb477" : i % 3 === 0 ? "#7d0a0a" : "#b71f1f"
+        });
+      }
+    }
+
+    function updateGibs(dt) {
+      state.gibs = state.gibs.filter(gib => {
+        gib.x += gib.vx * dt;
+        gib.y += gib.vy * dt;
+        gib.height += gib.vz * dt;
+        gib.vz -= 2.4 * dt;
+        gib.life -= dt;
+
+        if (isWall(gib.x, gib.y)) {
+          gib.vx *= -0.22;
+          gib.vy *= -0.22;
+        }
+        if (gib.height <= 0) {
+          addBloodStain(gib.x, gib.y, 0.08 + gib.size * 1.8, gib.color === "#ffb477" ? "#8a1717" : gib.color);
+          gib.height = 0;
+          return false;
+        }
+        return gib.life > 0.02;
+      });
+    }
+
+    function updatePlayerBullets(dt) {
+      state.bullets = state.bullets.filter(bullet => {
+        bullet.x += bullet.vx * dt;
+        bullet.y += bullet.vy * dt;
+        bullet.life -= dt;
+        if (bullet.life <= 0 || isWall(bullet.x, bullet.y)) return false;
+
+        for (const enemy of state.enemies) {
+          if (Math.hypot(enemy.x - bullet.x, enemy.y - bullet.y) < 0.32) {
+            enemy.hp -= bullet.damage;
+            enemy.hitFlash = 1;
+            spawnBloodBurst(enemy.x, enemy.y, 3, 0.65);
+            if (enemy.hp <= 0) {
+              state.kills += 1;
+              addBloodStain(enemy.x, enemy.y, 0.28, "#741010");
+              spawnBloodBurst(enemy.x, enemy.y, 16, 1.25);
+            }
+            return false;
+          }
+        }
+        return true;
+      });
+      state.enemies = state.enemies.filter(enemy => enemy.hp > 0);
+    }
+
+    function updateEnemyBullets(dt) {
+      state.enemyBullets = state.enemyBullets.filter(bullet => {
+        bullet.x += bullet.vx * dt;
+        bullet.y += bullet.vy * dt;
+        bullet.life -= dt;
+        if (bullet.life <= 0 || isWall(bullet.x, bullet.y)) return false;
+        if (Math.hypot(player.x - bullet.x, player.y - bullet.y) < 0.26) {
+          player.hp = Math.max(0, player.hp - bullet.damage);
+          return false;
+        }
+        return true;
+      });
+    }
+
+    function spawnEnemyBullet(enemy, angle, speed, damage) {
+      state.enemyBullets.push({
+        x: enemy.x,
+        y: enemy.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1.8,
+        damage,
+        heightOffset: 4
+      });
+    }
+
+    function maybeEnemyShoot(enemy) {
+      if (!enemy.shootMode) return;
+      if (enemy.cooldownRemaining > 0) return;
+      if (!hasLineOfSight(enemy.x, enemy.y, player.x, player.y)) return;
+
+      const baseAngle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+      if (enemy.shootMode === "single") {
+        spawnEnemyBullet(enemy, baseAngle, 4.6, 8);
+        enemy.cooldownRemaining = 1.4;
+      } else if (enemy.shootMode === "burst") {
+        [-0.08, 0, 0.08].forEach(offset => spawnEnemyBullet(enemy, baseAngle + offset, 4.2, 5));
+        enemy.cooldownRemaining = 1.9;
+      } else if (enemy.shootMode === "rapid") {
+        [-0.03, 0.03].forEach(offset => spawnEnemyBullet(enemy, baseAngle + offset, 5.5, 4));
+        enemy.cooldownRemaining = 1.0;
+      } else if (enemy.shootMode === "shotgun") {
+        [-0.16, -0.08, 0, 0.08, 0.16].forEach(offset => spawnEnemyBullet(enemy, baseAngle + offset, 4.9, 4));
+        enemy.cooldownRemaining = 1.7;
+      } else if (enemy.shootMode === "heavy") {
+        spawnEnemyBullet(enemy, baseAngle, 4.1, 12);
+        enemy.cooldownRemaining = 2.1;
+      }
+    }
+
+    function updateEnemies(dt) {
+      state.enemies.forEach(enemy => {
+        const previousX = enemy.x;
+        const previousY = enemy.y;
+        const dx = player.x - enemy.x;
+        const dy = player.y - enemy.y;
+        const distance = Math.hypot(dx, dy);
+
+        enemy.cooldownRemaining = Math.max(0, enemy.cooldownRemaining - dt);
+
+        let target = null;
+        if (hasLineOfSight(enemy.x, enemy.y, player.x, player.y)) {
+          target = { x: player.x, y: player.y };
+          maybeEnemyShoot(enemy);
+        } else {
+          target = nextPathCell(enemy.x, enemy.y, player.x, player.y);
+        }
+
+        const meleeRange = enemy.shootMode ? 0.9 : 0.75;
+        if (target && distance > meleeRange) {
+          const pathDx = target.x - enemy.x;
+          const pathDy = target.y - enemy.y;
+          const pathDistance = Math.hypot(pathDx, pathDy) || 1;
+          const step = enemy.speed * dt;
+          const moveEnemyX = enemy.x + (pathDx / pathDistance) * step;
+          const moveEnemyY = enemy.y + (pathDy / pathDistance) * step;
+          if (!isWall(moveEnemyX, enemy.y)) enemy.x = moveEnemyX;
+          if (!isWall(enemy.x, moveEnemyY)) enemy.y = moveEnemyY;
+        } else if (distance <= meleeRange && !enemy.shootMode) {
+          player.hp = Math.max(0, player.hp - 14 * dt);
+        }
+
+        const movement = Math.hypot(enemy.x - previousX, enemy.y - previousY);
+        if (distance > meleeRange + 0.45 && movement < 0.01 && enemy.teleportCooldown <= 0) {
+          enemy.stuckTime += dt;
+        } else {
+          enemy.stuckTime = Math.max(0, enemy.stuckTime - dt * 0.8);
+        }
+        if (enemy.stuckTime > 1.6 && enemy.nudgeCooldown <= 0) {
+          if (nudgeEnemy(enemy)) {
+            enemy.stuckTime = 0.6;
+            enemy.nudgeCooldown = 1.3;
+          }
+        }
+        if (enemy.stuckTime > 4.6 && enemy.teleportCooldown <= 0 && !hasLineOfSight(enemy.x, enemy.y, player.x, player.y)) {
+          const spawn = randomSpawnPoint(enemy);
+          enemy.x = spawn.x;
+          enemy.y = spawn.y;
+          enemy.stuckTime = 0;
+          enemy.teleportCooldown = 5.5;
+          enemy.cooldownRemaining = Math.max(enemy.cooldownRemaining, 0.5);
+        }
+
+        enemy.nudgeCooldown = Math.max(0, enemy.nudgeCooldown - dt);
+        enemy.teleportCooldown = Math.max(0, enemy.teleportCooldown - dt);
+        enemy.hitFlash = Math.max(0, enemy.hitFlash - dt * 4);
+      });
+    }
+
+    function update(dt) {
+      if (state.gameOver) {
+        state.restartTimer -= dt;
+        if (state.restartTimer <= 0) {
+          resetRun();
+        }
+        return;
+      }
+
+      const turnSpeed = 2.2;
+      const moveSpeed = 2.35;
+      const strafeSpeed = 1.85;
+
+      if (keys.turnLeft) player.angle -= turnSpeed * dt;
+      if (keys.turnRight) player.angle += turnSpeed * dt;
+
+      let moveX = 0, moveY = 0;
+      if (keys.forward) { moveX += Math.cos(player.angle) * moveSpeed * dt; moveY += Math.sin(player.angle) * moveSpeed * dt; }
+      if (keys.backward) { moveX -= Math.cos(player.angle) * moveSpeed * dt; moveY -= Math.sin(player.angle) * moveSpeed * dt; }
+      if (keys.left) { moveX += Math.cos(player.angle - Math.PI / 2) * strafeSpeed * dt; moveY += Math.sin(player.angle - Math.PI / 2) * strafeSpeed * dt; }
+      if (keys.right) { moveX += Math.cos(player.angle + Math.PI / 2) * strafeSpeed * dt; moveY += Math.sin(player.angle + Math.PI / 2) * strafeSpeed * dt; }
+
+      const nextX = player.x + moveX;
+      const nextY = player.y + moveY;
+      if (!isWall(nextX, player.y)) player.x = nextX;
+      if (!isWall(player.x, nextY)) player.y = nextY;
+
+      updateEnemies(dt);
+      updatePlayerBullets(dt);
+      updateEnemyBullets(dt);
+      updateGibs(dt);
+      state.muzzle = Math.max(0, state.muzzle - dt * 5);
+
+      if (player.hp <= 0) {
+        triggerGameOver();
+      }
+
+      if (state.enemies.length === 0) {
+        state.wave += 1;
+        state.enemyBullets = [];
+        state.enemies = buildEnemies();
+      }
+    }
+
+    function triggerGameOver() {
+      state.gameOver = true;
+      state.restartTimer = 1.9;
+      loseMeta.textContent = `Wave ${state.wave} | Kills ${state.kills}`;
+      loseOverlay.classList.add("show");
+    }
+
+    function resetRun() {
+      player.hp = 100;
+      state.kills = 0;
+      state.wave = 1;
+      player.x = 2.2;
+      player.y = 2.2;
+      state.bullets = [];
+      state.enemyBullets = [];
+      state.bloodStains = [];
+      state.gibs = [];
+      state.gameOver = false;
+      state.restartTimer = 0;
+      loseOverlay.classList.remove("show");
+      state.enemies = buildEnemies();
+    }
+
+    function fireWeapon() {
+      state.muzzle = 1;
+      state.bullets.push({
+        x: player.x + Math.cos(player.angle) * 0.42,
+        y: player.y + Math.sin(player.angle) * 0.42,
+        vx: Math.cos(player.angle) * 8.2,
+        vy: Math.sin(player.angle) * 8.2,
+        life: 1.2,
+        damage: 1,
+        heightOffset: 16
+      });
+    }
+
+    function enemyForWave(index) {
+      const order = [{ type: "runner" }, { type: "runner" }, { type: "imp" }, { type: "imp" }];
+      if (state.wave >= 2) order.push({ type: "burst" });
+      if (state.wave >= 3) order.push({ type: "gunner" });
+      if (state.wave >= 4) order.push({ type: "shotgunner" });
+      if (state.wave >= 5) order.push({ type: "bruiser" });
+      if (state.wave >= 4) order.push({ type: "runner" }, { type: "imp" });
+      return order[index % order.length].type;
+    }
+
+    function buildEnemies() {
+      const enemyCount = Math.min(spawnPoints.length, 3 + state.wave);
+      return spawnPoints.slice(0, enemyCount).map((point, index) => {
+        const drink = state.savedDrinks[index % state.savedDrinks.length];
+        const type = enemyForWave(index);
+        const archetype = archetypes[type];
+        ensureImage(drink.imageUrl);
+        return {
+          x: point.x,
+          y: point.y,
+          hp: archetype.hp + Math.floor((state.wave - 1) / 2),
+          maxHp: archetype.hp + Math.floor((state.wave - 1) / 2),
+          speed: archetype.speed,
+          shootMode: archetype.shoot,
+          cooldownRemaining: 0.4 * index,
+          name: drink.name,
+          imageUrl: drink.imageUrl,
+          type,
+          accent: archetype.color,
+          hitFlash: 0,
+          stuckTime: 0,
+          nudgeCooldown: 0,
+          teleportCooldown: 0
+        };
+      });
+    }
+
+    function updateHud() {
+      killCounter.textContent = `Alive ${state.enemies.length}`;
+      statusPanel.textContent = `HP ${Math.round(player.hp)} | Wave ${state.wave} | Kills ${state.kills}`;
+    }
+
+    function bindHoldButton(id, key) {
+      const el = document.getElementById(id);
+      const on = () => { keys[key] = true; el.classList.add("active"); };
+      const off = () => { keys[key] = false; el.classList.remove("active"); };
+      ["pointerdown", "touchstart", "mousedown"].forEach(evt => el.addEventListener(evt, on, { passive: true }));
+      ["pointerup", "pointercancel", "touchend", "touchcancel", "mouseup", "mouseleave"].forEach(evt => {
+        el.addEventListener(evt, off, { passive: true });
+      });
+    }
+
+    function bindTapButton(id, handler) {
+      const el = document.getElementById(id);
+      el.addEventListener("pointerdown", () => { el.classList.add("active"); handler(); }, { passive: true });
+      ["pointerup", "pointercancel", "touchend", "touchcancel", "mouseup", "mouseleave"].forEach(evt => {
+        el.addEventListener(evt, () => el.classList.remove("active"), { passive: true });
+      });
+    }
+
+    function hexToRgb(hex) {
+      const value = hex.replace("#", "");
+      return {
+        r: parseInt(value.slice(0, 2), 16),
+        g: parseInt(value.slice(2, 4), 16),
+        b: parseInt(value.slice(4, 6), 16)
+      };
+    }
+
+    window.setSavedDrinks = function(savedDrinks) {
+      if (Array.isArray(savedDrinks) && savedDrinks.length) {
+        state.savedDrinks = savedDrinks.filter(item => item && item.name && item.imageUrl);
+      }
+      if (!state.savedDrinks.length) return;
+      state.enemies = buildEnemies();
+    };
+
+    bindHoldButton("forward", "forward");
+    bindHoldButton("backward", "backward");
+    bindHoldButton("left", "left");
+    bindHoldButton("right", "right");
+    bindHoldButton("turnLeft", "turnLeft");
+    bindHoldButton("turnRight", "turnRight");
+    bindTapButton("fire", fireWeapon);
+
+    window.addEventListener("resize", resize);
+    resize();
+    ensureImage(weaponSpriteUrl);
+    Object.values(enemyBadges).forEach(ensureImage);
+    state.enemies = buildEnemies();
+
+    let last = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.033, (now - last) / 1000);
+      last = now;
+      update(dt);
+      render();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

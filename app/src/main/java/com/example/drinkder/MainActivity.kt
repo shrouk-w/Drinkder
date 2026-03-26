@@ -1,17 +1,19 @@
 package com.example.drinkder
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.drinkder.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private var dashboardTapCount = 0
+    private var lastDashboardTapAt = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,31 +23,53 @@ class MainActivity : AppCompatActivity() {
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-        val appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_search)
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
         val homeIcon = findViewById<ImageView>(R.id.nav_home)
         val dashboardIcon = findViewById<ImageView>(R.id.nav_dashboard)
         val searchIcon = findViewById<ImageView>(R.id.nav_search)
 
-        updateNavigationBar(R.id.nav_home)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val activeIcon = when (destination.id) {
+                R.id.navigation_dashboard -> R.id.nav_dashboard
+                R.id.navigation_search -> R.id.nav_search
+                else -> R.id.nav_home
+            }
+            updateNavigationBar(activeIcon)
+        }
 
         homeIcon.setOnClickListener {
+            resetDashboardTapSequence()
             navController.navigate(R.id.navigation_home)
-            updateNavigationBar(R.id.nav_home)
         }
 
         dashboardIcon.setOnClickListener {
+            registerDashboardTap()
             navController.navigate(R.id.navigation_dashboard)
-            updateNavigationBar(R.id.nav_dashboard)
         }
 
         searchIcon.setOnClickListener {
+            resetDashboardTapSequence()
             navController.navigate(R.id.navigation_search)
-            updateNavigationBar(R.id.nav_search)
         }
+    }
+
+    private fun registerDashboardTap() {
+        val now = SystemClock.elapsedRealtime()
+        dashboardTapCount = if (now - lastDashboardTapAt <= EASTER_EGG_WINDOW_MS) {
+            dashboardTapCount + 1
+        } else {
+            1
+        }
+        lastDashboardTapAt = now
+
+        if (dashboardTapCount >= REQUIRED_DASHBOARD_TAPS) {
+            resetDashboardTapSequence()
+            startActivity(Intent(this, DoomActivity::class.java))
+        }
+    }
+
+    private fun resetDashboardTapSequence() {
+        dashboardTapCount = 0
+        lastDashboardTapAt = 0L
     }
 
     private fun updateNavigationBar(activeId: Int) {
@@ -66,5 +90,10 @@ class MainActivity : AppCompatActivity() {
             icon.animate().scaleX(scale).scaleY(scale).setDuration(200).start()
             icon.setColorFilter(color)
         }
+    }
+
+    companion object {
+        private const val REQUIRED_DASHBOARD_TAPS = 5
+        private const val EASTER_EGG_WINDOW_MS = 2_000L
     }
 }

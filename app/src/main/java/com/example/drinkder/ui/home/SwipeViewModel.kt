@@ -26,7 +26,7 @@ class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandl
         viewModelScope.launch {
             try {
                 val response = RetrofitInstance.api.getRandomDrink()
-                val newDrink = response.drinks.firstOrNull()
+                val newDrink = response.drinks?.firstOrNull()
                 newDrink?.let { drink ->
 
                     val request = ImageRequest.Builder(context = getApplication<Application>().applicationContext)
@@ -58,7 +58,7 @@ class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandl
             ids.map { id ->
                 async {
                     try {
-                        RetrofitInstance.api.getDrinkById(id).drinks.firstOrNull()
+                        RetrofitInstance.api.getDrinkById(id).drinks?.firstOrNull()
                     } catch (_: Exception) {
                         null
                     }
@@ -91,6 +91,25 @@ class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandl
     fun removeFavorite(drink: Drink) {
         _favorites.value = _favorites.value?.filterNot { it.id == drink.id }
         viewModelScope.launch { favoritesStore.remove(drink.id) }
+    }
+
+    fun removeFavorites(drinks: List<Drink>) {
+        if (drinks.isEmpty()) return
+
+        val idsToRemove = drinks.map { it.id }.toSet()
+        _favorites.value = _favorites.value?.filterNot { it.id in idsToRemove }
+        viewModelScope.launch {
+            val remainingIds = favoritesStore.getIdsOnce().toMutableSet()
+            remainingIds.removeAll(idsToRemove)
+            favoritesStore.setAll(remainingIds)
+        }
+    }
+
+    fun clearFavorites() {
+        _favorites.value = emptyList()
+        viewModelScope.launch {
+            favoritesStore.setAll(emptySet())
+        }
     }
 
 }

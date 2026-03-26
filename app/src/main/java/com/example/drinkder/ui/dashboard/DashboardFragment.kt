@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.drinkder.R
 import com.example.drinkder.databinding.FragmentDashboardBinding
-import com.example.drinkder.model.Drink
 
 class DashboardFragment : Fragment() {
 
@@ -28,25 +28,61 @@ class DashboardFragment : Fragment() {
     ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
 
-        adapter = FavoritesAdapter(onClick = { drink ->
-            DrinkDetailsBottomSheet.newInstance(drink)
-                .show(parentFragmentManager, "drink_details")
-        })
+        adapter = FavoritesAdapter(
+            onClick = { drink ->
+                DrinkDetailsBottomSheet.newInstance(drink)
+                    .show(parentFragmentManager, "drink_details")
+            },
+            onSelectionChanged = { count, inSelectionMode ->
+                updateSelectionUi(count, inSelectionMode)
+            }
+        )
+
         binding.favoritesRecycler.layoutManager =
             GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
         binding.favoritesRecycler.adapter = adapter
 
-        // obserwuj ulubione i podawaj do adaptera
-        swipeViewModel.favorites.observe(viewLifecycleOwner) { list ->
-            adapter.submitList(list)
-        }
+        setupActions()
+        observeFavorites()
 
         return binding.root
     }
 
-    private fun onDrinkClicked(drink: Drink) {
-        // tu możesz otworzyć szczegóły, Toast, nawigację – opcjonalnie
-        // Toast.makeText(requireContext(), drink.name, Toast.LENGTH_SHORT).show()
+    private fun setupActions() = with(binding) {
+        clearAllButton.setOnClickListener {
+            swipeViewModel.clearFavorites()
+            adapter.clearSelection()
+        }
+
+        deleteSelectedButton.setOnClickListener {
+            swipeViewModel.removeFavorites(adapter.getSelectedDrinks())
+            adapter.clearSelection()
+        }
+
+        cancelSelectionButton.setOnClickListener {
+            adapter.clearSelection()
+        }
+    }
+
+    private fun observeFavorites() {
+        swipeViewModel.favorites.observe(viewLifecycleOwner) { list ->
+            adapter.submitList(list)
+            binding.emptyState.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+            if (list.isEmpty()) {
+                updateSelectionUi(0, false)
+            }
+        }
+    }
+
+    private fun updateSelectionUi(count: Int, inSelectionMode: Boolean) = with(binding) {
+        defaultActions.visibility = if (inSelectionMode) View.GONE else View.VISIBLE
+        selectionActions.visibility = if (inSelectionMode) View.VISIBLE else View.GONE
+        deleteSelectedButton.isEnabled = count > 0
+        selectionCount.text = resources.getQuantityString(
+            R.plurals.saved_selected_count,
+            count,
+            count
+        )
     }
 
     override fun onDestroyView() {

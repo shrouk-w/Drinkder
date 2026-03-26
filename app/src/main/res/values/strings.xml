@@ -1,8 +1,34 @@
 <resources>
     <string name="app_name">Drinkder</string>
     <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
+    <string name="title_dashboard">Saved</string>
     <string name="title_searchpage">Search</string>
     <string name="delete">Delete</string>
     <string name="close">Close</string>
+    <string name="search_hint">Margarita, rum, lime, gin</string>
+    <string name="pantry_label">Pantry</string>
+    <string name="pantry_hint">vodka, lemon, mint</string>
+    <string name="search_hint_name">Try Margarita</string>
+    <string name="search_hint_ingredient">Try tequila or lime</string>
+    <string name="search_results_title">One search, two ways in</string>
+    <string name="search_results_subtitle">Type a drink name or any ingredient and Drinkder checks both at the same time.</string>
+    <string name="search_action">Search</string>
+    <string name="add">Add</string>
+    <string name="filter_all">All</string>
+    <string name="filter_alcoholic">Alcoholic</string>
+    <string name="filter_non_alcoholic">Zero-proof</string>
+    <string name="filter_pantry_only">Pantry only</string>
+    <string name="search_mode_label">Search mode</string>
+    <string name="search_mode_name">Drink name</string>
+    <string name="search_mode_ingredient">Ingredient</string>
+    <string name="saved_empty_title">Nothing saved yet</string>
+    <string name="saved_empty_subtitle">Swipe right on drinks you like and they will land here.</string>
+    <string name="home_tagline">Swipe through cocktail ideas</string>
+    <string name="label_ingredients">Ingredients</string>
+    <string name="label_instructions">Instructions</string>
+    <string name="clear_all">Clear all</string>
+    <string name="delete_selected">Delete selected</string>
+    <string name="cancel">Cancel</string>
+    <string name="check_mark">&#10003;</string>
+    <string name="doom_close">Close</string>
 </resources>
