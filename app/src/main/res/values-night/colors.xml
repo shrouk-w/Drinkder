@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<resources>
+    <color name="canvas">#191521</color>
+    <color name="canvas_pink">#7D185F</color>
+    <color name="canvas_lilac">#402069</color>
+    <color name="ink">#F5EFFB</color>
+    <color name="muted">#C1B5CE</color>
+    <color name="accent">#FFA5D0</color>
+    <color name="panel">#292232</color>
+    <color name="panel_soft">#382E43</color>
+    <color name="line">#655470</color>
+    <color name="glass">#45211A35</color>
+    <color name="glass_line">#7564517D</color>
+    <color name="danger">#FFA3B8</color>
+    <color name="search_surface_strong">#7545A1</color>
+    <color name="canvas_middle">#591E69</color>
+</resources>

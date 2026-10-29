@@ -1,14 +1,17 @@
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
 import coil.Coil
 import coil.request.ImageRequest
 import com.example.drinkder.data.FavoritesStore
 import com.example.drinkder.model.Drink
 import com.example.drinkder.network.RetrofitInstance
+import com.example.drinkder.network.DiscoveryRepository
+import com.example.drinkder.model.DiscoverySource
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -21,24 +24,57 @@ class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandl
 
     private val favoritesStore = FavoritesStore(getApplication<Application>())
     private val favoriteIds = mutableSetOf<String>()
+    val isLoading = MutableLiveData(false)
+    val error = MutableLiveData<String?>(null)
+
+    private val _source = savedStateHandle.getLiveData("discovery_source", DiscoverySource.RANDOM)
+    val source: LiveData<DiscoverySource> = _source
+    private val discovery by lazy { DiscoveryRepository(RetrofitInstance.discoveryApi) }
+    private var deckJob: Job? = null
+    private var deckGeneration = 0L
+
+    fun selectSource(selected: DiscoverySource) {
+        if (_source.value == selected) return
+        deckGeneration++
+        deckJob?.cancel()
+        _source.value = selected
+        _drinks.value = emptyList()
+        isLoading.value = false
+        fetchDrink()
+    }
 
     fun fetchDrink() {
-        viewModelScope.launch {
+        if (deckJob?.isActive == true || _drinks.value.orEmpty().size >= 4) return
+        val selected = _source.value ?: DiscoverySource.RANDOM
+        val generation = ++deckGeneration
+        isLoading.value = true
+        error.value = null
+        deckJob = viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.getRandomDrink()
-                val newDrink = response.drinks?.firstOrNull()
-                newDrink?.let { drink ->
-
-                    val request = ImageRequest.Builder(context = getApplication<Application>().applicationContext)
-                        .data(drink.imageUrl)
-                        .build()
-
-                    Coil.imageLoader(getApplication()).enqueue(request)
-
-                    _drinks.value = _drinks.value?.plus(drink)
+                val batch = discovery.load(selected)
+                ensureActive()
+                if (generation != deckGeneration) return@launch
+                val existing = _drinks.value.orEmpty()
+                val ids = existing.mapTo(mutableSetOf()) { it.id }
+                val next = batch.filter { ids.add(it.id) }
+                _drinks.value = existing + next
+                next.take(4).forEach { drink ->
+                    Coil.imageLoader(getApplication()).enqueue(
+                        ImageRequest.Builder(getApplication<Application>()).data(drink.imageUrl).build()
+                    )
                 }
-            } catch (e: Exception) {
-                Log.e("SwipeViewModel", "Error fetching drink: ${e.message}", e)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                if (generation == deckGeneration) {
+                    error.value = if (com.example.drinkder.BuildConfig.COCKTAIL_API_KEY.isBlank()) {
+                        "Set API_KEY in .env and rebuild to discover drinks."
+                    } else {
+                        "Could not load this deck. Check your connection and try again."
+                    }
+                }
+            } finally {
+                if (generation == deckGeneration) isLoading.value = false
             }
         }
     }
@@ -70,13 +106,17 @@ class SwipeViewModel(application: Application, savedStateHandle: SavedStateHandl
 
 
     fun swipeRight(drink: Drink) {
+        saveFavorite(drink)
+        removeDrink(drink)
+    }
+
+    fun saveFavorite(drink: Drink) {
         if (_favorites.value?.any { it.id == drink.id } == false) {
 
             _favorites.value = _favorites.value?.plus(drink)
 
             viewModelScope.launch { favoritesStore.add(drink.id) }
         }
-        removeDrink(drink)
     }
 
     fun swipeLeft(drink: Drink) {

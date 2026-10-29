@@ -1,46 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:id="@+id/custom_nav_bar"
-android:layout_width="match_parent"
-android:layout_height="70dp"
-android:background="@drawable/toolbar_background"
-android:orientation="horizontal"
-android:gravity="center"
-android:elevation="8dp"
-android:paddingHorizontal="20dp"
-android:layout_gravity="bottom">
-
-<ImageView
-    android:id="@+id/nav_dashboard"
-    android:layout_width="0dp"
-    android:layout_weight="1"
-    android:layout_height="28dp"
-    android:src="@drawable/ic_dashboard_black_24dp"
-    android:contentDescription="Dashboard"
-    android:tint="@color/nav_inactive"
-    />
-
-
-<ImageView
-    android:id="@+id/nav_home"
-    android:layout_width="0dp"
-    android:layout_weight="1"
-    android:layout_height="28dp"
-    android:src="@drawable/ic_home_black_24dp"
-    android:contentDescription="Home"
-    android:tint="@color/nav_inactive"
-    />
-
-<ImageView
-    android:id="@+id/nav_search"
-    android:layout_width="0dp"
-    android:layout_weight="1"
-    android:layout_height="28dp"
-    android:src="@drawable/ic_search_24dp"
-    android:contentDescription="SearchPage"
-    android:tint="@color/nav_inactive"
-    />
-
-
+<?xml version="1.0" ?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/custom_nav_bar"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:background="@drawable/toolbar_background"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:elevation="4dp"
+    android:padding="8dp">
+    <ImageButton
+        android:id="@+id/nav_dashboard"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        android:background="@drawable/nav_item_background"
+        android:src="@drawable/ic_dashboard_black_24dp"
+        android:contentDescription="@string/title_dashboard"
+        app:tint="@color/nav_inactive"/>
+    <ImageButton
+        android:id="@+id/nav_home"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        android:background="@drawable/nav_item_background"
+        android:src="@drawable/ic_home_black_24dp"
+        android:contentDescription="@string/title_home"
+        app:tint="@color/nav_inactive"/>
+    <ImageButton
+        android:id="@+id/nav_search"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        android:background="@drawable/nav_item_background"
+        android:src="@drawable/ic_search_24dp"
+        android:contentDescription="@string/title_searchpage"
+        app:tint="@color/nav_inactive"/>
 </LinearLayout>

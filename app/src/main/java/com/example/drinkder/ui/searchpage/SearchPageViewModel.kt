@@ -6,15 +6,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.drinkder.data.PantryStore
+import com.example.drinkder.data.IngredientCatalogStore
+import com.example.drinkder.network.ApiRequestRunner
 import com.example.drinkder.model.Drink
 import com.example.drinkder.network.RetrofitInstance
-import kotlinx.coroutines.Dispatchers
+import com.example.drinkder.network.CocktailSearchRepository
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 
 class SearchPageViewModel(application: Application) : AndroidViewModel(application) {
+    enum class SearchMode { QUERY, PANTRY }
 
     enum class AlcoholFilter {
         ALL,
@@ -22,12 +24,10 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
         NON_ALCOHOLIC
     }
 
-    private data class PantryScore(
-        val matched: Int,
-        val total: Int
-    )
-
     private val pantryStore = PantryStore(application)
+    private val catalogStore = IngredientCatalogStore(application)
+    val ingredientNames = MutableLiveData<List<String>>(emptyList())
+    val controlsExpanded = MutableLiveData(true)
 
     private val _results = MutableLiveData<List<Drink>>(emptyList())
     val results: LiveData<List<Drink>> = _results
@@ -35,7 +35,7 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _message = MutableLiveData("Add pantry items or search by drink name or ingredient.")
+    private val _message = MutableLiveData("Search for a cocktail or ingredient, e.g. Margarita or gin.")
     val message: LiveData<String> = _message
 
     private val _pantryItems = MutableLiveData<List<String>>(emptyList())
@@ -44,17 +44,41 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
     private val _alcoholFilter = MutableLiveData(AlcoholFilter.ALL)
     val alcoholFilter: LiveData<AlcoholFilter> = _alcoholFilter
 
-    private val _pantryOnly = MutableLiveData(false)
-    val pantryOnly: LiveData<Boolean> = _pantryOnly
+    private val _searchMode = MutableLiveData(SearchMode.QUERY)
+    val searchMode: LiveData<SearchMode> = _searchMode
+    private val _matchMode = MutableLiveData(MatchMode.EXPLORE)
+    val matchMode: LiveData<MatchMode> = _matchMode
+    val hasError = MutableLiveData(false)
 
     private var searchJob: Job? = null
     private var lastQuery: String = ""
     private var rawResults: List<Drink> = emptyList()
+    private val repository by lazy { CocktailSearchRepository(RetrofitInstance.api) }
+    val warning = MutableLiveData<String?>(null)
 
     init {
         viewModelScope.launch {
             _pantryItems.value = pantryStore.getItemsOnce().sorted()
             updateVisibleResults()
+        }
+        viewModelScope.launch {
+            try {
+                val cached = catalogStore.read()
+                ingredientNames.value = cached.names
+                if (cached.names.isEmpty() || System.currentTimeMillis() - cached.updatedAt > 86_400_000) {
+                    val names = ApiRequestRunner().run { RetrofitInstance.api.listIngredients() }
+                        .drinks.orEmpty().map { it.name.trim() }.filter(String::isNotBlank)
+                        .distinctBy { it.lowercase() }.sortedBy { it.lowercase() }
+                    if (names.isNotEmpty()) {
+                        ingredientNames.value = names
+                        catalogStore.save(names)
+                    }
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                // Catalogue availability must not block manually entered ingredients.
+            }
         }
     }
 
@@ -65,21 +89,39 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             _isLoading.value = true
+            hasError.value = false
+            warning.value = null
+            rawResults = emptyList()
+            _results.value = emptyList()
             _message.value = ""
 
             runCatching {
-                if (normalizedQuery.isBlank()) {
-                    searchFromPantry()
+                if (_searchMode.value == SearchMode.PANTRY) {
+                    repository.searchPantry(_pantryItems.value.orEmpty())
+                } else if (normalizedQuery.isBlank()) {
+                    CocktailSearchRepository.SearchResult(emptyList())
                 } else {
-                    searchByName(normalizedQuery)
+                    repository.search(normalizedQuery)
                 }
-            }.onSuccess { drinks ->
-                rawResults = drinks
+            }.onSuccess { result ->
+                rawResults = result.drinks
                 updateVisibleResults()
-            }.onFailure {
+                if (result.incomplete) warning.value = "Some recipes could not be loaded. Retry to complete the results."
+            }.onFailure { error ->
+                if (error is CancellationException) throw error
+                if (com.example.drinkder.BuildConfig.DEBUG) {
+                    val status = (error as? retrofit2.HttpException)?.code()
+                    android.util.Log.w("DrinkSearch", "Search failure: ${error.javaClass.simpleName}; HTTP=$status")
+                }
+                hasError.value = true
                 rawResults = emptyList()
                 _results.value = emptyList()
-                _message.value = "Search failed. Check your connection and try again."
+                _message.value = when ((error as? retrofit2.HttpException)?.code()) {
+                    429 -> "The cocktail service is busy. Wait a moment and try again."
+                    401, 403 -> "The cocktail service refused this request. Please try again shortly."
+                    in 500..599 -> "The cocktail service is temporarily unavailable. Please try again."
+                    else -> "Could not load recipes. Check your connection and try again."
+                }
             }
 
             _isLoading.value = false
@@ -92,12 +134,19 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
 
     fun setAlcoholFilter(filter: AlcoholFilter) {
         _alcoholFilter.value = filter
-        updateVisibleResults()
+        if (_isLoading.value != true) updateVisibleResults()
     }
 
-    fun setPantryOnly(enabled: Boolean) {
-        _pantryOnly.value = enabled
-        updateVisibleResults()
+    fun setSearchMode(mode: SearchMode) {
+        if (_searchMode.value == mode) return
+        _searchMode.value = mode
+        search(lastQuery)
+    }
+
+    fun setMatchMode(mode: MatchMode) {
+        if (_matchMode.value == mode) return
+        _matchMode.value = mode
+        if (_isLoading.value != true) updateVisibleResults()
     }
 
     fun addPantryIngredient(value: String) {
@@ -108,6 +157,7 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
             .distinct()
             .sorted()
 
+        if (updated == _pantryItems.value) return
         _pantryItems.value = updated
         persistPantry(updated)
         refreshIfPantryDriven()
@@ -129,45 +179,43 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private fun refreshIfPantryDriven() {
-        if (lastQuery.isBlank()) {
-            search("")
-        } else {
-            updateVisibleResults()
+        if (_searchMode.value == SearchMode.PANTRY) {
+            search(lastQuery)
         }
     }
 
     private fun updateVisibleResults() {
         val pantry = (_pantryItems.value ?: emptyList()).map { it.lowercase() }.toSet()
 
-        val baseResults = if (_pantryOnly.value == true && lastQuery.isNotBlank()) {
-            rawResults.filter { drink ->
-                pantryScore(drink, pantry).matched > 0
-            }
-        } else {
-            rawResults
-        }
+        val pantryMode = _searchMode.value == SearchMode.PANTRY
+        var visible = rawResults.filter(::matchesAlcoholFilter)
 
-        var visible = baseResults.filter(::matchesAlcoholFilter)
-
-        if (_pantryOnly.value == true) {
+        if (pantryMode) {
             visible = visible
                 .map { drink -> drink to pantryScore(drink, pantry) }
-                .filter { (_, score) -> score.matched > 0 }
+                .filter { (_, score) ->
+                    if (_matchMode.value == MatchMode.EXACT) score.complete
+                    else score.matched > 0
+                }
                 .sortedWith(
-                    compareByDescending<Pair<Drink, PantryScore>> { it.second.matched }
+                    compareByDescending<Pair<Drink, PantryMatcher.Score>> { it.second.matched }
                         .thenByDescending { scoreRatio(it.second) }
                         .thenBy { it.second.total - it.second.matched }
                         .thenBy { it.first.name }
                 )
                 .map { it.first }
+        } else if (_matchMode.value == MatchMode.EXACT) {
+            visible = visible.filter { drink ->
+                PantryMatcher.matchesExactQuery(drink.name, drinkIngredients(drink), lastQuery)
+            }
         }
 
         _results.value = visible
         _message.value = when {
-            lastQuery.isBlank() && pantry.isEmpty() -> defaultMessage()
-            rawResults.isEmpty() && lastQuery.isBlank() -> emptyPantryMessage()
+            pantryMode && pantry.isEmpty() -> "Add an ingredient to your bar to find recipes."
+            !pantryMode && lastQuery.isBlank() -> defaultMessage()
+            rawResults.isEmpty() && pantryMode -> emptyPantryMessage()
             rawResults.isEmpty() -> emptyMessage(lastQuery)
-            visible.isEmpty() && _pantryOnly.value == true && pantry.isEmpty() -> pantryNeededMessage()
             visible.isEmpty() -> filteredOutMessage()
             else -> ""
         }
@@ -183,17 +231,12 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    private fun pantryScore(drink: Drink, pantry: Set<String>): PantryScore {
-        val ingredients = drinkIngredients(drink)
-        val matched = ingredients.count { ingredient ->
-            pantry.any { pantryItem ->
-                ingredient.contains(pantryItem) || pantryItem.contains(ingredient)
-            }
-        }
-        return PantryScore(matched = matched, total = ingredients.size.coerceAtLeast(1))
-    }
+    private fun pantryScore(drink: Drink, pantry: Set<String>) = PantryMatcher.score(
+        drinkIngredients(drink), pantry, _matchMode.value ?: MatchMode.EXPLORE
+    )
 
-    private fun scoreRatio(score: PantryScore): Float = score.matched.toFloat() / score.total.toFloat()
+    private fun scoreRatio(score: PantryMatcher.Score): Float =
+        if (score.total == 0) 0f else score.matched.toFloat() / score.total
 
     private fun drinkIngredients(drink: Drink): List<String> {
         return listOf(
@@ -215,33 +258,8 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
         ).mapNotNull { it?.trim()?.lowercase()?.takeIf(String::isNotBlank) }
     }
 
-    private suspend fun searchByName(query: String): List<Drink> = withContext(Dispatchers.IO) {
-        runCatching { RetrofitInstance.api.searchDrinks(query).drinks.orEmpty() }.getOrDefault(emptyList())
-    }
-
-    private suspend fun searchFromPantry(): List<Drink> = withContext(Dispatchers.IO) {
-        val pantry = (_pantryItems.value ?: emptyList())
-        if (pantry.isEmpty()) return@withContext emptyList()
-
-        pantry.map { ingredient ->
-            async {
-                searchByIngredient(ingredient)
-            }
-        }.flatMap { it.await() }
-            .distinctBy { it.id }
-    }
-
-    private suspend fun searchByIngredient(query: String): List<Drink> = withContext(Dispatchers.IO) {
-        val filtered = RetrofitInstance.api.filterDrinksByIngredient(query).drinks.orEmpty()
-        filtered.map { item ->
-            async {
-                runCatching { RetrofitInstance.api.getDrinkById(item.id).drinks?.firstOrNull() }.getOrNull()
-            }
-        }.mapNotNull { it.await() }
-    }
-
     private fun defaultMessage(): String {
-        return "Add pantry items or search by drink name or ingredient."
+        return "Search for a cocktail or ingredient, e.g. Margarita or gin."
     }
 
     private fun emptyPantryMessage(): String {
@@ -252,13 +270,13 @@ class SearchPageViewModel(application: Application) : AndroidViewModel(applicati
         return "No drinks matched \"$query\" by name or ingredient."
     }
 
-    private fun pantryNeededMessage(): String {
-        return "Turn off pantry mode or add more pantry ingredients."
-    }
-
     private fun filteredOutMessage(): String {
-        return if (_pantryOnly.value == true) {
-            "No good pantry matches under the current filter."
+        return if (_searchMode.value == SearchMode.PANTRY) {
+            if (_matchMode.value == MatchMode.EXACT) {
+                "No exact matches with these ingredients and filters. Try Explore or add an ingredient."
+            } else {
+                "No ingredient matches under the current filter."
+            }
         } else {
             "Results exist, but none fit the current filter."
         }

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.fragment.app.activityViewModels
 import coil.load
+import com.example.drinkder.R
 import com.example.drinkder.databinding.FragmentDrinkDetailsBottomSheetBinding
 import com.example.drinkder.model.Drink
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -42,12 +43,13 @@ class DrinkDetailsBottomSheet : BottomSheetDialogFragment() {
                 ?: return@setOnShowListener
 
             bottom.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            bottom.setBackgroundColor(android.graphics.Color.TRANSPARENT)
 
             val behavior = BottomSheetBehavior.from(bottom).apply {
                 isFitToContents = false
                 skipCollapsed = true
                 val screen = resources.displayMetrics.heightPixels
-                expandedOffset = (screen * 0.25f).toInt()
+                expandedOffset = (screen * 0.10f).toInt()
                 state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
@@ -64,9 +66,22 @@ class DrinkDetailsBottomSheet : BottomSheetDialogFragment() {
         binding.ingredients.text = buildIngredients(drink)
 
         binding.btnClose.setOnClickListener { dismiss() }
+        swipeViewModel.favorites.observe(viewLifecycleOwner) { favorites ->
+            val saved = favorites.any { it.id == drink.id }
+            binding.btnDelete.isSelected = saved
+            binding.btnDelete.contentDescription = getString(
+                if (saved) R.string.recipe_saved else R.string.recipe_save
+            )
+            binding.btnDelete.setImageResource(
+                if (saved) R.drawable.ic_delete_24 else R.drawable.ic_dashboard_black_24dp
+            )
+        }
         binding.btnDelete.setOnClickListener {
-            swipeViewModel.removeFavorite(drink)
-            dismiss()
+            if (swipeViewModel.favorites.value.orEmpty().any { it.id == drink.id }) {
+                swipeViewModel.removeFavorite(drink)
+            } else {
+                swipeViewModel.saveFavorite(drink)
+            }
         }
     }
 

@@ -1,28 +1,36 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" ?>
+<resources>
     <style name="Theme.Drinkder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/apricot_500</item>
-        <item name="colorPrimaryVariant">@color/rum_700</item>
-        <item name="colorOnPrimary">@color/cream_100</item>
-        <item name="colorSecondary">@color/mint_300</item>
-        <item name="colorSecondaryVariant">@color/apricot_300</item>
-        <item name="colorOnSecondary">@color/rum_900</item>
-        <item name="colorSurface">@color/cream_100</item>
-        <item name="colorOnSurface">@color/rum_900</item>
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorPrimaryVariant">@color/accent_purple</item>
+        <item name="colorOnPrimary">@color/canvas</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/canvas</item>
+        <item name="colorSurface">@color/panel</item>
+        <item name="colorOnSurface">@color/ink</item>
+        <item name="android:colorBackground">@color/canvas</item>
+        <item name="android:windowBackground">@drawable/gradient</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@color/rum_900</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Drinkder.BottomSheet</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Drinkder.Medium</item>
     </style>
-
+    <style
+        name="ThemeOverlay.Drinkder.BottomSheet"
+        parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Drinkder.BottomSheet</item>
+    </style>
+    <style name="Widget.Drinkder.BottomSheet" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="android:background">@drawable/sheet_background</item>
+    </style>
     <style name="ShapeAppearance.Drinkder.Medium" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">24dp</item>
     </style>
-
     <style name="ShapeAppearance.Drinkder.ImageTop" parent="">
-        <item name="cornerFamilyTopLeft">rounded</item>
-        <item name="cornerFamilyTopRight">rounded</item>
-        <item name="cornerSizeTopLeft">24dp</item>
-        <item name="cornerSizeTopRight">24dp</item>
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
     </style>
 </resources>

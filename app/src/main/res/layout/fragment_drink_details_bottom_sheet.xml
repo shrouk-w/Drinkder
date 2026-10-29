@@ -1,133 +1,110 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" ?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient"
-    android:orientation="vertical">
-
+    android:orientation="vertical"
+    android:background="@drawable/sheet_background">
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:background="@color/line"/>
     <LinearLayout
-        android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="#663A1D16"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp">
-
-    <ImageButton
-        android:id="@+id/btnDelete"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_delete_24"
-        app:tint="@color/blush_100"
-        android:contentDescription="@string/delete" />
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/cream_100"
-        android:gravity="center"
-        android:ellipsize="end"
-        android:maxLines="1" />
-
-    <ImageButton
-        android:id="@+id/btnClose"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_close_24"
-        app:tint="@color/mint_300"
-        android:contentDescription="@string/close" />
-</LinearLayout>
-
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp">
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="24sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/ink"
+            android:accessibilityHeading="true"/>
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_dashboard_black_24dp"
+            app:tint="@color/accent"
+            android:contentDescription="@string/recipe_save"/>
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close_24"
+            app:tint="@color/muted"
+            android:contentDescription="@string/close"/>
+    </LinearLayout>
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
-
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="32dp">
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/imageLarge"
                 android:layout_width="match_parent"
-                android:layout_height="260dp"
+                android:layout_height="240dp"
+                android:background="@color/panel_soft"
                 android:scaleType="centerCrop"
-                app:cornerSize="24dp" />
-
-            <com.google.android.material.card.MaterialCardView
+                android:importantForAccessibility="no"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Drinkder.Medium"/>
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="#22FFFFFF"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="18dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_ingredients"
-                        android:textColor="@color/apricot_300"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/ingredients"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:textColor="@color/cream_100"
-                        android:textSize="15sp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
+                android:layout_marginTop="24dp"
+                android:text="@string/label_ingredients"
+                android:textColor="@color/accent"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="18sp"
+                android:accessibilityHeading="true"/>
+            <TextView
+                android:id="@+id/ingredients"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="#22FFFFFF"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="18dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_instructions"
-                        android:textColor="@color/apricot_300"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/instructions"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:lineSpacingExtra="2dp"
-                        android:textColor="@color/cream_100"
-                        android:textSize="15sp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                android:layout_marginTop="12dp"
+                android:textColor="@color/ink"
+                android:textSize="16sp"
+                android:lineSpacingExtra="8dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/line"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/label_instructions"
+                android:textColor="@color/accent"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="18sp"
+                android:accessibilityHeading="true"/>
+            <TextView
+                android:id="@+id/instructions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/ink"
+                android:textSize="16sp"
+                android:lineSpacingExtra="6dp"/>
         </LinearLayout>
-
     </ScrollView>
 </LinearLayout>

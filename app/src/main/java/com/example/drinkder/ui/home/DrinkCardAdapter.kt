@@ -49,10 +49,10 @@ class DrinkCardAdapter(
                 drink.ingredient14,
                 drink.ingredient15
             ).filterNot { it.isNullOrBlank() }
-                .mapIndexed{i, ing ->  "${i + 1}. $ing"}
 
-            binding.drinkDescription.text = ingredients.joinToString(separator = "\n")
-            binding.drinkImage.load(drink.imageUrl)
+            binding.drinkType.text = drink.alcoholic.orEmpty().uppercase()
+            binding.drinkDescription.text = ingredients.take(4).joinToString(separator = " · ")
+            binding.drinkImage.load(drink.imageUrl) { crossfade(true) }
         }
     }
 }

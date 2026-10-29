@@ -1,13 +1,14 @@
+<?xml version="1.0" ?>
 <resources>
     <string name="app_name">Drinkder</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Saved</string>
+    <string name="title_home">Discover</string>
+    <string name="title_dashboard">Your matches</string>
     <string name="title_searchpage">Search</string>
     <string name="delete">Delete</string>
     <string name="close">Close</string>
-    <string name="search_hint">Margarita, rum, lime, gin</string>
-    <string name="pantry_label">Pantry</string>
-    <string name="pantry_hint">vodka, lemon, mint</string>
+    <string name="search_hint">Cocktail name or ingredient</string>
+    <string name="pantry_label">Your bar</string>
+    <string name="pantry_hint">Add an ingredient, e.g. gin</string>
     <string name="search_hint_name">Try Margarita</string>
     <string name="search_hint_ingredient">Try tequila or lime</string>
     <string name="search_results_title">One search, two ways in</string>
@@ -17,7 +18,7 @@
     <string name="filter_all">All</string>
     <string name="filter_alcoholic">Alcoholic</string>
     <string name="filter_non_alcoholic">Zero-proof</string>
-    <string name="filter_pantry_only">Pantry only</string>
+    <string name="filter_pantry_only">My ingredients</string>
     <string name="search_mode_label">Search mode</string>
     <string name="search_mode_name">Drink name</string>
     <string name="search_mode_ingredient">Ingredient</string>
@@ -25,10 +26,35 @@
     <string name="saved_empty_subtitle">Swipe right on drinks you like and they will land here.</string>
     <string name="home_tagline">Swipe through cocktail ideas</string>
     <string name="label_ingredients">Ingredients</string>
-    <string name="label_instructions">Instructions</string>
+    <string name="label_instructions">The method</string>
     <string name="clear_all">Clear all</string>
     <string name="delete_selected">Delete selected</string>
     <string name="cancel">Cancel</string>
     <string name="check_mark">&#10003;</string>
     <string name="doom_close">Close</string>
+    <string name="home_loading">Finding your next favourite&#8230;</string>
+    <string name="try_again">Try again</string>
+    <string name="skip_drink">Skip this drink</string>
+    <string name="save_drink">Like and save this drink</string>
+    <string name="view_recipe">View recipe</string>
+    <string name="swipe_hint">Swipe left to pass &#183; right to save</string>
+    <string name="like_label">LIKE</string>
+    <string name="pass_label">PASS</string>
+    <string name="saved_empty_full">Your next favourite is a swipe away.\nLike a drink to keep its recipe here.</string>
+    <string name="bar_hint">Add ingredients you have. Find a little inspiration.</string>
+    <string name="pantry_ingredient_label">Ingredient you have</string>
+    <string name="recipe_saved">Remove from matches</string>
+    <string name="recipe_save">Save to matches</string>
+    <string name="mode_query">Search</string><string name="mode_bar">My ingredients</string>
+    <string name="find_bar_recipes">Search my ingredients</string>
+    <string name="saved_kicker">YOUR COLLECTION</string><string name="saved_heading">Matches</string><string name="remove_selected">Remove</string>
+    <string name="match_exact">Exact match</string><string name="match_explore">Explore</string>
+    <string name="match_exact_hint">Only recipes you have all the ingredients for.</string>
+    <string name="match_explore_hint">Include recipes with missing ingredients.</string>
+    <string name="cycle_alcohol_filter">Alcohol filter: %1$s. Tap to change.</string>
+    <string name="cycle_match_filter">Match mode: %1$s. Tap to change.</string>
+    <string name="deck_random">Random</string><string name="deck_popular">Popular</string><string name="deck_new">New</string>
+    <string name="choose_deck">Choose cards</string><string name="discover_hold_hint">Discover. Hold to choose Random, Popular or New.</string>
+    <string name="hide_search_controls">Hide search controls</string><string name="show_search_controls">Show search controls</string>
+    <string name="controls_expanded">Expanded</string><string name="controls_collapsed">Collapsed</string>
 </resources>

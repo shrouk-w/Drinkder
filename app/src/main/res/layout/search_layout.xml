@@ -1,269 +1,329 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" ?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="20dp"
-    android:paddingTop="28dp"
-    android:paddingEnd="20dp"
-    android:paddingBottom="16dp"
-    tools:context=".ui.searchpage.SearchPageFragment">
-
-    <TextView
-        android:id="@+id/search_title"
-        android:layout_width="0dp"
+    android:paddingHorizontal="@dimen/screen_horizontal_inset">
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/search_header_limit"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-medium"
-        android:text="@string/title_searchpage"
-        android:textColor="@color/cream_100"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/search_row"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_title">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/search_input"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:hint="@string/search_hint"
-            android:imeOptions="actionSearch"
-            android:inputType="text"
-            android:maxLines="1"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:textColor="@color/search_surface"
-            android:textColorHint="@color/search_muted"
-            android:textSize="22sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/search_button"
-            style="@style/Widget.MaterialComponents.Button.Icon"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="10dp"
-            android:contentDescription="@string/search_action"
-            app:backgroundTint="@color/search_surface"
-            app:cornerRadius="26dp"
-            app:icon="@drawable/ic_search_24dp"
-            app:iconTint="@color/search_ink" />
-    </LinearLayout>
-
-    <HorizontalScrollView
-        android:id="@+id/filter_scroll"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:overScrollMode="never"
-        android:scrollbars="none"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_row">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/filter_all"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/filter_all"
-                android:textColor="@color/search_chip_text"
-                app:checkedIconVisible="false"
-                app:chipBackgroundColor="@color/search_chip_bg"
-                app:chipStrokeColor="@color/search_chip_stroke"
-                app:chipStrokeWidth="1dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/filter_alcoholic"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/filter_alcoholic"
-                android:textColor="@color/search_chip_text"
-                app:checkedIconVisible="false"
-                app:chipBackgroundColor="@color/search_chip_bg"
-                app:chipStrokeColor="@color/search_chip_stroke"
-                app:chipStrokeWidth="1dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/filter_non_alcoholic"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/filter_non_alcoholic"
-                android:textColor="@color/search_chip_text"
-                app:checkedIconVisible="false"
-                app:chipBackgroundColor="@color/search_chip_bg"
-                app:chipStrokeColor="@color/search_chip_stroke"
-                app:chipStrokeWidth="1dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/filter_pantry_only"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="@string/filter_pantry_only"
-                android:textColor="@color/search_chip_text"
-                app:checkedIconVisible="false"
-                app:chipBackgroundColor="@color/search_chip_bg"
-                app:chipStrokeColor="@color/search_chip_stroke"
-                app:chipStrokeWidth="1dp" />
-        </LinearLayout>
-    </HorizontalScrollView>
-
+        app:layout_constraintGuide_percent="0.58"/>
     <LinearLayout
-        android:id="@+id/pantry_row"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/search_top_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center_vertical"
+        android:paddingTop="@dimen/screen_header_top"
+        android:paddingBottom="@dimen/screen_header_bottom"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filter_scroll">
-
+        app:layout_constraintEnd_toEndOf="parent"
+        style="@style/Widget.Drinkder.ScreenHeader">
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pantry_label"
-            android:textColor="@color/search_surface"
-            android:textSize="14sp" />
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/pantry_input"
+            android:id="@+id/search_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
             android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:hint="@string/pantry_hint"
-            android:imeOptions="actionDone"
-            android:inputType="text"
-            android:maxLines="1"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:textColor="@color/search_surface"
-            android:textColorHint="@color/search_muted"
-            android:textSize="18sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/add_pantry_button"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="0dp"
-            android:text="@string/add"
-            android:textAllCaps="false"
-            android:textColor="@color/search_surface" />
+            android:text="@string/title_searchpage"
+            style="@style/Widget.Drinkder.ScreenTitle"/>
+        <ImageButton
+            android:id="@+id/toggle_search_controls"
+            android:layout_width="@dimen/screen_header_action_width"
+            android:layout_height="@dimen/screen_header_row_height"
+            android:src="@drawable/ic_menu_24"
+            app:tint="@color/on_background"
+            android:contentDescription="@string/hide_search_controls"
+            style="@style/Widget.Drinkder.ScreenHeaderAction"/>
     </LinearLayout>
-
-    <HorizontalScrollView
-        android:id="@+id/pantry_scroll"
+    <ScrollView
+        android:id="@+id/search_header"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:overScrollMode="never"
+        android:layout_height="0dp"
+        android:fillViewport="false"
         android:scrollbars="none"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_default="wrap"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintBottom_toTopOf="@id/search_header_limit"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pantry_row">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/pantry_chips"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:chipSpacingHorizontal="8dp"
-            app:chipSpacingVertical="8dp"
-            app:singleLine="true" />
-    </HorizontalScrollView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/state_card"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="#1EF4EEE6"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="0dp"
-        app:strokeColor="#40F4EEE6"
-        app:strokeWidth="1dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pantry_scroll">
-
+        app:layout_constraintTop_toBottomOf="@id/search_top_bar">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:orientation="vertical"
-            android:padding="18dp">
-
-            <ProgressBar
-                android:id="@+id/search_progress"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
+            android:paddingTop="0dp"
+            android:paddingBottom="12dp">
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/search_modes"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:indeterminateTint="@color/cream_100"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/state_message"
-                android:layout_width="wrap_content"
+                android:layout_marginTop="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:checkedButton="@id/mode_query">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/mode_query"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="48dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingHorizontal="8dp"
+                    android:text="@string/mode_query"
+                    android:textAllCaps="false"
+                    android:textColor="@color/mode_text"
+                    app:backgroundTint="@color/mode_bg"
+                    app:strokeColor="@color/glass_line"
+                    app:cornerRadius="24dp"
+                    android:letterSpacing="0"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/mode_bar"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="48dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingHorizontal="8dp"
+                    android:text="@string/mode_bar"
+                    android:textAllCaps="false"
+                    android:textColor="@color/mode_text"
+                    app:backgroundTint="@color/mode_bg"
+                    app:strokeColor="@color/glass_line"
+                    app:cornerRadius="24dp"
+                    android:letterSpacing="0"/>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center"
-                android:textColor="@color/search_surface"
-                android:textSize="15sp"
-                tools:text="Search by cocktail name or by any ingredient you have." />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/retry_button"
-                android:layout_width="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/field_background"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="4dp"
+                android:id="@+id/query_row">
+                <EditText
+                    android:id="@+id/search_input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="56dp"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/search_hint"
+                    android:contentDescription="@string/search_hint"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textSize="16sp"
+                    android:textColor="@color/ink"
+                    android:textColorHint="@color/muted"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/search_button"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:padding="12dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:minWidth="0dp"
+                    android:contentDescription="@string/search_action"
+                    app:backgroundTint="@color/panel_soft"
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/ic_search_24dp"
+                    app:iconPadding="0dp"
+                    app:iconTint="@color/accent"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/search_action"
-                android:textColor="@color/search_ink"
-                android:visibility="gone"
-                app:backgroundTint="@color/search_surface"
-                app:cornerRadius="18dp" />
+                android:layout_marginTop="20dp"
+                android:orientation="vertical"
+                android:background="@android:color/transparent"
+                android:padding="0dp"
+                android:id="@+id/bar_editor"
+                android:visibility="gone">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/field_background"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="4dp">
+                    <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                        android:id="@+id/pantry_input"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:minHeight="56dp"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/pantry_hint"
+                        android:contentDescription="@string/pantry_ingredient_label"
+                        android:imeOptions="actionDone"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:textSize="16sp"
+                        android:textColor="@color/ink"
+                        android:textColorHint="@color/muted"
+                        android:completionThreshold="1"
+                        android:dropDownHeight="240dp"
+                        android:dropDownAnchor="@id/bar_editor"
+                        android:dropDownWidth="match_parent"
+                        android:dropDownVerticalOffset="4dp"
+                        android:popupBackground="@drawable/autocomplete_background"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_pantry_button"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:minWidth="56dp"
+                        android:text="@string/add"
+                        android:textAllCaps="false"
+                        android:letterSpacing="0"
+                        android:textColor="@color/accent"
+                        app:cornerRadius="16dp"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/alcohol_filter_button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="12dp"
+                    android:minHeight="48dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingHorizontal="16dp"
+                    android:text="@string/filter_all"
+                    android:textAllCaps="false"
+                    android:letterSpacing="0"
+                    android:textSize="14sp"
+                    android:textColor="@color/on_background"
+                    app:backgroundTint="@color/bar_chip_background"
+                    app:strokeColor="@color/glass_line"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="24dp"
+                    app:icon="@drawable/ic_cycle_24"
+                    app:iconSize="16dp"
+                    app:iconTint="@color/on_background"
+                    app:iconGravity="end"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/match_filter_button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="48dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingHorizontal="16dp"
+                    android:text="@string/match_explore"
+                    android:textAllCaps="false"
+                    android:letterSpacing="0"
+                    android:textSize="14sp"
+                    android:textColor="@color/on_background"
+                    app:backgroundTint="@color/bar_chip_background"
+                    app:strokeColor="@color/glass_line"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="24dp"
+                    app:icon="@drawable/ic_cycle_24"
+                    app:iconSize="16dp"
+                    app:iconTint="@color/on_background"
+                    app:iconGravity="end"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/pantry_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/pantry_chips"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:chipSpacingHorizontal="8dp"
+                    app:chipSpacingVertical="0dp"/>
+            </LinearLayout>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/search_results"
+    </ScrollView>
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="18dp"
-        android:clipToPadding="false"
-        android:paddingBottom="120dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintTop_toBottomOf="@id/search_header"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/state_card"
-        tools:listitem="@layout/item_favorite_drink" />
-
+        app:layout_constraintEnd_toEndOf="parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_results"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="104dp"
+            android:clipToPadding="false"/>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/state_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            android:layout_marginBottom="88dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="24dp">
+                <ProgressBar
+                    android:id="@+id/search_progress"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:indeterminateTint="@color/on_background"
+                    android:visibility="gone"/>
+                <TextView
+                    android:id="@+id/state_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:textColor="@color/on_background_muted"
+                    android:textSize="15sp"
+                    android:accessibilityLiveRegion="polite"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/retry_button"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/try_again"
+                    android:textAllCaps="false"
+                    android:textColor="@color/accent"
+                    android:visibility="gone"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

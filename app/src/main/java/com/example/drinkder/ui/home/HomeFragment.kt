@@ -9,6 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.drinkder.databinding.FragmentHomeBinding
+import com.example.drinkder.R
+import com.example.drinkder.ui.dashboard.DrinkDetailsBottomSheet
+import androidx.core.view.isVisible
 import com.yuyakaido.android.cardstackview.*
 
 class HomeFragment : Fragment(), CardStackListener {
@@ -34,21 +37,56 @@ class HomeFragment : Fragment(), CardStackListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupCardStackView()
+        binding.skipButton.setOnClickListener { swipe(Direction.Left) }
+        binding.likeButton.setOnClickListener { swipe(Direction.Right) }
+        binding.detailsButton.setOnClickListener {
+            viewModel.drinks.value?.firstOrNull()?.let { drink ->
+                DrinkDetailsBottomSheet.newInstance(drink)
+                    .show(parentFragmentManager, "discovery_recipe")
+            }
+        }
+        binding.homeRetry.setOnClickListener { viewModel.fetchDrink() }
 
         viewModel.drinks.observe(viewLifecycleOwner) { drinks ->
             adapter.setDrinks(drinks)
-            if (drinks.size < 4) viewModel.fetchDrink()
+            binding.cardStackView.scrollToPosition(0)
+            updateState()
         }
+        viewModel.isLoading.observe(viewLifecycleOwner) { updateState() }
+        viewModel.error.observe(viewLifecycleOwner) { updateState() }
+        viewModel.fetchDrink()
+    }
+
+    private fun updateState() = with(binding) {
+        val empty = viewModel.drinks.value.isNullOrEmpty()
+        homeState.isVisible = empty
+        homeProgress.isVisible = viewModel.isLoading.value == true
+        homeMessage.text = viewModel.error.value ?: getString(R.string.home_loading)
+        homeRetry.isVisible = viewModel.error.value != null && viewModel.isLoading.value != true
+        listOf(skipButton, likeButton, detailsButton).forEach {
+            it.isEnabled = !empty
+            it.alpha = if (empty) 0.4f else 1f
+        }
+    }
+
+    private fun swipe(direction: Direction) {
+        if (viewModel.drinks.value.isNullOrEmpty()) return
+        val duration = if (android.os.Build.VERSION.SDK_INT >= 26 &&
+            !android.animation.ValueAnimator.areAnimatorsEnabled()) 0 else 220
+        cardStackLayoutManager.setSwipeAnimationSetting(
+            SwipeAnimationSetting.Builder().setDirection(direction).setDuration(duration).build()
+        )
+        binding.cardStackView.swipe()
     }
 
     private fun setupCardStackView() {
         cardStackLayoutManager = CardStackLayoutManager(requireContext(), this).apply {
-            setStackFrom(StackFrom.Top)
-            setVisibleCount(3)
+            setStackFrom(StackFrom.None)
+            setVisibleCount(1)
             setTranslationInterval(8.0f)
             setScaleInterval(0.95f)
             setSwipeThreshold(0.3f)
-            setMaxDegree(40.0f)
+            setMaxDegree(18.0f)
             setDirections(Direction.HORIZONTAL)
             setCanScrollVertical(false)
         }

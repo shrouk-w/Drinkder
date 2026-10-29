@@ -4,4 +4,5 @@
         <item quantity="one">%d selected</item>
         <item quantity="other">%d selected</item>
     </plurals>
+    <plurals name="saved_recipe_count"><item quantity="one">%d recipe worth keeping</item><item quantity="other">%d recipes worth keeping</item></plurals>
 </resources>

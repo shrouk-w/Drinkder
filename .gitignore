@@ -1,5 +1,12 @@
 *.iml
+# Local API keys (keep .env.example as the setup template)
+.env
+.env.*
+!.env.example
+
 .gradle
+.kotlin/
+**/build/
 /local.properties
 /.idea/caches
 /.idea/libraries
